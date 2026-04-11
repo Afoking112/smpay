@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SM Pay
 
-## Getting Started
+SM Pay is a Next.js fintech starter focused on wallet funding, airtime and data purchases, and transaction visibility.
 
-First, run the development server:
+## Current Product Scope
+
+- User signup and login with JWT-based GraphQL auth
+- Admin signup and login foundation
+- Wallet balance and recent transaction dashboard
+- Paystack wallet funding flow with verification support
+- VTU-backed airtime and data purchase actions
+- Health endpoint for environment and database diagnostics
+
+## Stack
+
+- Next.js App Router
+- Apollo Client and Apollo Server
+- MongoDB with Mongoose
+- Paystack
+- VTU service integration
+- Tailwind CSS
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create your environment file from the example:
+
+```bash
+copy .env.example .env.local
+```
+
+3. Fill in the required environment variables:
+
+```env
+MONGODB_URI=
+JWT_SECRET=
+PAYSTACK_SECRET_KEY=
+PAYSTACK_PUBLIC_KEY=
+VTPASS_API_KEY=
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=
+```
+
+4. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` starts the app in development
+- `npm run build` creates the production build
+- `npm run start` runs the production server
+- `npm run lint` runs ESLint
 
-## Learn More
+## Routes
 
-To learn more about Next.js, take a look at the following resources:
+- `/` landing page
+- `/signup` user signup
+- `/login` user login
+- `/dashboard` authenticated user dashboard
+- `/admin/signup` canonical admin signup route
+- `/admin/login` canonical admin login route
+- `/Adminsignup` legacy admin signup route
+- `/Adminlogin` legacy admin login route
+- `/about` product overview
+- `/contact` support and partnership contact page
+- `/payment/success` Paystack return and wallet verification page
+- `/payment/failed` payment follow-up page
+- `/api/graphql` GraphQL API
+- `/api/paystack/webhook` Paystack webhook receiver
+- `/api/health` operational health check
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Health Check
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The health endpoint returns JSON showing:
 
-## Deploy on Vercel
+- whether the main environment variables are present
+- whether MongoDB connection succeeds
+- an overall `ok` boolean and timestamp
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Example:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+curl http://localhost:3000/api/health
+```
+
+If MongoDB is misconfigured or unreachable, this endpoint will return `503`.
+
+## MongoDB Notes
+
+This project expects a working MongoDB Atlas or compatible MongoDB connection string in `MONGODB_URI`.
+
+If signup or login fails because the database will not connect:
+
+- verify the cluster hostname in the URI
+- confirm the username and password are correct
+- whitelist your IP in MongoDB Atlas network access
+- make sure DNS or your network can resolve the SRV host
+- test `/api/health` to see the current connection error
+
+This workspace now uses a non-SRV Atlas connection string locally to avoid the SRV DNS lookup failure that was happening on this machine. If `/api/health` still reports a database failure, the next thing to fix is usually Atlas IP/network access.
+
+## Payment Notes
+
+- Wallet funding initializes through Paystack
+- The success return page verifies the payment and updates wallet state
+- The webhook also protects against double-crediting the same reference
+
+## Next Suggested Improvements
+
+- Add a live data-plan catalog instead of manual plan ID entry
+- Add About and Contact content management or CMS backing
+- Add dashboard charts and richer transaction filtering
+- Add tests for auth, funding, and service purchases
+- Add route protection middleware if you want stronger edge-level guards
