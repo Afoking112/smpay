@@ -80,10 +80,15 @@ export default function ServiceRequestHistory() {
                                     </p>
                                     <h3 className="mt-2 text-lg font-semibold text-gray-900">{request.title}</h3>
                                     <p className="mt-2 text-sm text-gray-600">
-                                        {request.provider || 'Provider pending'}{request.accountOrPhone ? ` • ${request.accountOrPhone}` : ''}
+                                        {request.provider || 'Provider pending'}{request.accountOrPhone ? ` | ${request.accountOrPhone}` : ''}
                                     </p>
                                     {request.note ? (
                                         <p className="mt-3 text-sm leading-6 text-gray-600">{request.note}</p>
+                                    ) : null}
+                                    {request.expectedCredit ? (
+                                        <p className="mt-3 text-sm font-medium text-emerald-600">
+                                            Net credit after {request.feePercentage || 0}% charge: {formatCurrency(request.expectedCredit)}
+                                        </p>
                                     ) : null}
                                 </div>
                                 <div className="text-left md:text-right">

@@ -3,6 +3,7 @@
 import { useMutation } from "@apollo/client/react"
 import { useState } from "react"
 import { ADMIN_SIGNUP } from "../../lib/queries"
+import { storeAuthSession } from '@/utils/auth';
 
 export default function AdminSignup() {
     const [signup, { loading }] = useMutation(ADMIN_SIGNUP)
@@ -34,9 +35,8 @@ export default function AdminSignup() {
                 }
             })
             if (data.adminSignup.token) {
-                localStorage.setItem('token', data.adminSignup.token);
-                document.cookie = `token=${data.adminSignup.token}; path=/; max-age=604800`;
-                window.location.href = '/dashboard';
+                storeAuthSession(data.adminSignup.token);
+                window.location.href = '/admin';
             }
         } catch (err) {
             setError(err.message);

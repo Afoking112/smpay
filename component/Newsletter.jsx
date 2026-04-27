@@ -1,4 +1,21 @@
+"use client";
+
+import { useState } from 'react';
+
 export default function Newsletter() {
+    const [email, setEmail] = useState('');
+    const [feedback, setFeedback] = useState('');
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if (!email.trim()) {
+            setFeedback('Please enter an email address.');
+            return;
+        }
+        setFeedback('Thanks for subscribing! We will keep you updated.');
+        setEmail('');
+    };
+
     return (
         <section className="py-20 px-10 bg-gray-100 text-center">
 
@@ -10,19 +27,29 @@ export default function Newsletter() {
                 Get updates on new features and offers.
             </p>
 
-            <div className="flex justify-center gap-4">
+            <form onSubmit={handleSubmit} className="flex justify-center gap-4 flex-wrap">
 
                 <input
                     type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
                     placeholder="Enter your email"
                     className="px-4 py-2 border rounded w-72"
+                    required
                 />
 
-                <button className="bg-blue-600 text-white px-6 py-2 rounded">
+                <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-6 py-2 rounded"
+                >
                     Subscribe
                 </button>
 
-            </div>
+            </form>
+
+            {feedback ? (
+                <p className="mt-4 text-sm text-gray-600">{feedback}</p>
+            ) : null}
 
         </section>
     )

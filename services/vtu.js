@@ -2,7 +2,7 @@ import axios from 'axios';
 import generateReference from '../utils/reference.js';
 
 const VT_PASS_URL = 'https://sandbox.vtpass.com/api';
-const VT_PASS_KEY = process.env.VTPASS_API_KEY;
+const VT_PASS_KEY = `${process.env.VTPASS_PUBLIC_KEY}:${process.env.VTPASS_SECRET_KEY}`;
 
 export const buyAirtime = async (phone, network, amount) => {
     const reference = generateReference('AIRTIME');

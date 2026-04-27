@@ -19,7 +19,7 @@ export default function Dashboard() {
     const [isFundWalletOpen, setIsFundWalletOpen] = useState(false);
     const [activeService, setActiveService] = useState('airtime');
     const token = useSyncExternalStore(
-        () => () => {},
+        () => () => { },
         getStoredToken,
         () => ''
     );
@@ -48,7 +48,7 @@ export default function Dashboard() {
             <div className="flex min-h-screen items-center justify-center bg-gray-100">
                 <div className="rounded-2xl bg-white px-8 py-6 text-center shadow">
                     <p className="text-lg font-semibold text-gray-900">Loading your dashboard...</p>
-                    <p className="mt-2 text-sm text-gray-500">Checking your session and fetching your account.</p>
+                    <p className="mt-2 text-sm text-gray-500"> fetching your account.</p>
                 </div>
             </div>
         );
@@ -59,9 +59,7 @@ export default function Dashboard() {
             <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
                 <div className="max-w-lg rounded-2xl bg-white p-8 shadow">
                     <h1 className="text-2xl font-bold text-gray-900">We could not load your dashboard</h1>
-                    <p className="mt-3 text-sm text-gray-600">
-                        Your session looks valid, but the app could not reach the backend. This usually happens when the database connection or API credentials still need attention.
-                    </p>
+
                     <div className="mt-6 flex gap-3">
                         <button
                             type="button"

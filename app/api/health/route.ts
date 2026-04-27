@@ -9,7 +9,8 @@ export async function GET() {
             mongodb: Boolean(process.env.MONGODB_URI),
             jwt: Boolean(process.env.JWT_SECRET),
             paystack: Boolean(process.env.PAYSTACK_SECRET_KEY),
-            vtpass: Boolean(process.env.VTPASS_API_KEY),
+            vtpassPublicKey: Boolean(process.env.VTPASS_PUBLIC_KEY),
+            vtpassSecretKey: Boolean(process.env.VTPASS_SECRET_KEY),
         },
         db: {
             ok: false,

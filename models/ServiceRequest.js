@@ -41,6 +41,16 @@ const serviceRequestSchema = new mongoose.Schema({
         enum: ['Pending', 'In Review', 'Completed', 'Declined'],
         default: 'Pending',
     },
+    feePercentage: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    expectedCredit: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
 }, { timestamps: true });
 
 const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model('ServiceRequest', serviceRequestSchema);

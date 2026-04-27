@@ -10,6 +10,7 @@ import {
     TRANSACTIONS_QUERY,
     WALLET_BALANCE_QUERY,
 } from '@/lib/queries';
+import GiftCardChatPanel from '@/component/GiftCardChatPanel';
 import { formatCurrency } from '@/utils/currency';
 import { getDataPlansForNetwork } from '@/utils/dataPlans';
 
@@ -25,8 +26,8 @@ const serviceContent = {
         description: 'Choose from a starter plan catalog instead of entering a raw provider plan ID.',
     },
     'gift-card': {
-        title: 'Gift Card Request',
-        description: 'Submit a gift card buy or sell request for manual review and follow-up.',
+        title: 'Gift Card Live Chat',
+        description: 'Chat with support about selling your gift card and hold on until the admin comes online.',
     },
     'airtime-cash': {
         title: 'Airtime to Cash Request',
@@ -57,14 +58,12 @@ export default function ServicePurchasePanel({ service, onClose }) {
         provider: '',
         accountOrPhone: '',
         amount: '',
-        direction: '',
         note: '',
     });
     const [feedback, setFeedback] = useState(null);
 
     const dataPlans = useMemo(() => getDataPlansForNetwork(dataForm.network), [dataForm.network]);
     const selectedDataPlan = dataPlans.find((plan) => plan.providerPlanId === dataForm.planId) || dataPlans[0] || null;
-
     const refetchQueries = useMemo(
         () => [
             { query: WALLET_BALANCE_QUERY },
@@ -87,12 +86,17 @@ export default function ServicePurchasePanel({ service, onClose }) {
         awaitRefetchQueries: true,
     });
 
+    const airtimeCashAmount = Number(requestForm.amount || 0);
+    const airtimeCashFee = Number((airtimeCashAmount * 0.07).toFixed(2));
+    const airtimeCashCredit = Number((airtimeCashAmount - airtimeCashFee).toFixed(2));
+
     if (!service) {
         return null;
     }
 
     const content = serviceContent[service] || serviceContent.airtime;
     const loading = airtimeLoading || dataLoading || requestLoading;
+
     const resetFeedback = () => setFeedback(null);
 
     const handleAirtimeSubmit = async (event) => {
@@ -163,18 +167,6 @@ export default function ServicePurchasePanel({ service, onClose }) {
     };
 
     const buildServiceRequestInput = () => {
-        if (service === 'gift-card') {
-            return {
-                category: 'Gift Card',
-                title: requestForm.direction === 'sell' ? 'Gift card sell request' : 'Gift card buy request',
-                provider: requestForm.provider,
-                accountOrPhone: requestForm.accountOrPhone,
-                amount: Number(requestForm.amount || 0),
-                direction: requestForm.direction || 'sell',
-                note: requestForm.note,
-            };
-        }
-
         if (service === 'airtime-cash') {
             return {
                 category: 'Airtime to Cash',
@@ -232,7 +224,6 @@ export default function ServicePurchasePanel({ service, onClose }) {
                     provider: '',
                     accountOrPhone: '',
                     amount: '',
-                    direction: '',
                     note: '',
                 });
             }
@@ -243,33 +234,25 @@ export default function ServicePurchasePanel({ service, onClose }) {
 
     const requestLabels = {
         provider:
-            service === 'gift-card'
-                ? 'Card Brand'
-                : service === 'airtime-cash'
-                    ? 'Network'
-                    : service === 'electricity'
-                        ? 'Disco Provider'
-                        : 'Cable Provider',
+            service === 'airtime-cash'
+                ? 'Network'
+                : service === 'electricity'
+                    ? 'Disco Provider'
+                    : 'Cable Provider',
         accountOrPhone:
-            service === 'gift-card'
-                ? 'Contact Email or Phone'
-                : service === 'airtime-cash'
-                    ? 'Phone Number'
-                    : service === 'electricity'
-                        ? 'Meter Number'
-                        : 'Smartcard Number',
+            service === 'airtime-cash'
+                ? 'Phone Number'
+                : service === 'electricity'
+                    ? 'Meter Number'
+                    : 'Smartcard Number',
     };
 
     return (
         <section className="rounded-2xl bg-white p-6 shadow">
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
-                        {content.title}
-                    </h2>
-                    <p className="mt-1 text-sm text-gray-500">
-                        {content.description}
-                    </p>
+                    <h2 className="text-lg font-semibold text-gray-900">{content.title}</h2>
+                    <p className="mt-1 text-sm text-gray-500">{content.description}</p>
                 </div>
                 <button
                     type="button"
@@ -292,6 +275,8 @@ export default function ServicePurchasePanel({ service, onClose }) {
                     {feedback.reference ? <p className="mt-1">Reference: {feedback.reference}</p> : null}
                 </div>
             ) : null}
+
+            {service === 'gift-card' ? <GiftCardChatPanel /> : null}
 
             {service === 'airtime' ? (
                 <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleAirtimeSubmit}>
@@ -416,7 +401,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                 </form>
             ) : null}
 
-            {!['airtime', 'data'].includes(service) ? (
+            {!['airtime', 'data', 'gift-card'].includes(service) ? (
                 <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleRequestSubmit}>
                     <label className="text-sm font-medium text-gray-700">
                         {requestLabels.provider}
@@ -453,20 +438,14 @@ export default function ServicePurchasePanel({ service, onClose }) {
                             required
                         />
                     </label>
-                    {service === 'gift-card' ? (
-                        <label className="text-sm font-medium text-gray-700">
-                            Direction
-                            <select
-                                value={requestForm.direction}
-                                onChange={(event) => setRequestForm({ ...requestForm, direction: event.target.value })}
-                                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                                required
-                            >
-                                <option value="">Select direction</option>
-                                <option value="buy">Buy</option>
-                                <option value="sell">Sell</option>
-                            </select>
-                        </label>
+                    {service === 'airtime-cash' ? (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 md:col-span-2">
+                            <p className="font-semibold">Airtime to cash preview</p>
+                            <p className="mt-2">
+                                We charge 7% on airtime conversions. If you submit {formatCurrency(airtimeCashAmount)}, the amount to be credited is {formatCurrency(airtimeCashCredit)}.
+                            </p>
+                            <p className="mt-1 text-amber-700">Charge: {formatCurrency(airtimeCashFee)}</p>
+                        </div>
                     ) : (
                         <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
                             This flow currently creates a tracked manual-review request so operations can follow up without charging the wallet automatically.
@@ -483,7 +462,9 @@ export default function ServicePurchasePanel({ service, onClose }) {
                     </label>
                     <div className="md:col-span-2 flex items-center justify-between gap-4 rounded-xl bg-gray-50 px-4 py-4">
                         <p className="text-sm text-gray-600">
-                            Request value: {formatCurrency(requestForm.amount || 0)}
+                            {service === 'airtime-cash'
+                                ? `Request value: ${formatCurrency(requestForm.amount || 0)} | Net credit: ${formatCurrency(airtimeCashCredit)}`
+                                : `Request value: ${formatCurrency(requestForm.amount || 0)}`}
                         </p>
                         <button
                             type="submit"

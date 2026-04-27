@@ -4,6 +4,8 @@ import { useMutation } from "@apollo/client/react"
 import { useState } from "react"
 import { useRouter } from 'next/navigation';
 import { ADMIN_LOGIN } from "../../lib/queries"
+import Link from 'next/link';
+import { storeAuthSession } from '@/utils/auth';
 
 
 export default function AdminLogin() {
@@ -38,9 +40,8 @@ export default function AdminLogin() {
                 }
             })
             if (data.adminLogin.token) {
-                localStorage.setItem('token', data.adminLogin.token);
-                document.cookie = `token=${data.adminLogin.token}; path=/; max-age=604800`;
-                router.push('/dashboard');
+                storeAuthSession(data.adminLogin.token);
+                router.push('/admin');
             }
         } catch (err) {
             setError(err.message);
@@ -99,6 +100,11 @@ export default function AdminLogin() {
                     >
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
+                    <div className="text-right">
+                        <Link href="/forgot-password" className="text-sm font-semibold text-blue-600 hover:text-blue-500">
+                            Forgot password?
+                        </Link>
+                    </div>
                 </form>
                 <div className="text-center">
                     <span className="text-sm text-gray-600">

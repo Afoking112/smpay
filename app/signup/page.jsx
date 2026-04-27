@@ -4,12 +4,14 @@ import { useMutation } from '@apollo/client/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SIGNUP_MUTATION } from '../../lib/queries';
-
+import { Eye, EyeOff } from "lucide-react";
+import { storeAuthSession } from '@/utils/auth';
 export default function SignupPage() {
     const router = useRouter();
     const [signup, { loading }] = useMutation(SIGNUP_MUTATION);
     const [error, setError] = useState('');
-
+    const [showpassword, setshowpassword] = useState(false)
+    const [showpassword1, setshowpassword1] = useState(false)
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -53,9 +55,8 @@ export default function SignupPage() {
             });
 
             if (data.signup.token) {
-                localStorage.setItem('token', data.signup.token);
-                alert('Signup successful!');
-                router.push('/login');
+                storeAuthSession(data.signup.token);
+                router.push('/dashboard');
             }
         } catch (err) {
             setError(err.message);
@@ -122,35 +123,49 @@ export default function SignupPage() {
                             placeholder="Enter your email"
                         />
                     </div>
-                    <div>
+                    <div className="relative w-full">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                             Password
                         </label>
                         <input
                             id="password"
                             name="password"
-                            type="password"
+                            type={showpassword ? "text" : "password"}
                             required
                             value={formData.password}
                             onChange={handleChange}
                             className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="Enter password"
                         />
+                        <button
+                            type="button"
+                            onClick={() => setshowpassword(!showpassword)}
+                            className="absolute right-3 bottom-1 -translate-y-1/2"
+                        >
+                            {showpassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                     </div>
-                    <div>
+                    <div className="relative w-full" >
                         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                             Confirm Password
                         </label>
                         <input
                             id="confirmPassword"
                             name="confirmPassword"
-                            type="password"
+                            type={showpassword1 ? "text" : "password"}
                             required
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="Confirm your password"
                         />
+                        <button
+                            type="button"
+                            onClick={() => setshowpassword1(!showpassword1)}
+                            className="absolute right-3 bottom-1 -translate-y-1/2"
+                        >
+                            {showpassword1 ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                     </div>
                     <button
                         type="submit"

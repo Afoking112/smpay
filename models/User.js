@@ -32,6 +32,22 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         min: 0
+    },
+    state: {
+        type: String,
+        default: '',
+    },
+    address: {
+        type: String,
+        default: '',
+    },
+    profilePicture: {
+        type: String,
+        default: '',
+    },
+    telegramUsername: {
+        type: String,
+        default: '',
     }
 }, { timestamps: true });
 

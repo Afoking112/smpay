@@ -5,10 +5,12 @@ import { useMutation } from '@apollo/client/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LOGIN_MUTATION } from '../../lib/queries';
+import { Eye, EyeOff } from "lucide-react";
+import { storeAuthSession } from '@/utils/auth';
 
 export default function LoginPage() {
     const router = useRouter();
-
+    const [showpassword, setshowpassword] = useState(false)
     const [login, { loading }] = useMutation(LOGIN_MUTATION);
     const [error, setError] = useState('');
 
@@ -43,9 +45,9 @@ export default function LoginPage() {
             });
 
             if (data.login.token) {
-                localStorage.setItem('token', data.login.token);
-                document.cookie = `token=${data.login.token}; path=/; max-age=604800`;
-                const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+                storeAuthSession(data.login.token);
+                const defaultRedirect = data.login.user?.role === 'admin' ? '/admin' : '/dashboard';
+                const redirectTo = new URLSearchParams(window.location.search).get('redirect') || defaultRedirect;
                 router.push(redirectTo);
             }
         } catch (err) {
@@ -83,20 +85,28 @@ export default function LoginPage() {
                             placeholder="Enter your email"
                         />
                     </div>
-                    <div>
+                    <div className="relative w-full">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                             Password
                         </label>
                         <input
                             id="password"
                             name="password"
-                            type="password"
+                            type={showpassword ? "text" : "password"}
                             required
                             value={formData.password}
                             onChange={handleChange}
                             className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             placeholder="Enter password"
                         />
+
+                        <button
+                            type="button"
+                            onClick={() => setshowpassword(!showpassword)}
+                            className="absolute right-3 bottom-1 -translate-y-1/2"
+                        >
+                            {showpassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                     </div>
                     <button
                         type="submit"
@@ -105,6 +115,11 @@ export default function LoginPage() {
                     >
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
+                    <div className="text-right">
+                        <Link href="/forgot-password" className="text-sm font-semibold text-blue-600 hover:text-blue-500">
+                            Forgot password?
+                        </Link>
+                    </div>
                 </form>
                 <div className="text-center">
                     <span className="text-sm text-gray-600">

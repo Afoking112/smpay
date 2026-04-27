@@ -1,11 +1,13 @@
 import Link from 'next/link';
-import { FiHome, FiClock, FiZap, FiGift, FiActivity } from "react-icons/fi";
+import { FiHome, FiClock, FiZap, FiGift, FiActivity, FiMessageSquare, FiUser } from "react-icons/fi";
 
 const links = [
     { href: '/dashboard', icon: FiHome, label: 'Dashboard Home' },
-    { href: '#transactions-section', icon: FiClock, label: 'Transactions' },
-    { href: '#service-center', icon: FiZap, label: 'Service Center' },
-    { href: '#service-requests', icon: FiGift, label: 'Service Requests' },
+    { href: '/profile', icon: FiUser, label: 'Profile Update' },
+    { href: '/messages', icon: FiMessageSquare, label: 'Support' },
+    { href: '/dashboard#transactions-section', icon: FiClock, label: 'Transactions' },
+    { href: '/dashboard#service-center', icon: FiZap, label: 'Service Center' },
+    { href: '/dashboard#service-requests', icon: FiGift, label: 'Service Requests' },
     { href: '/status', icon: FiActivity, label: 'System Status' },
 ];
 

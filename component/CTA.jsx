@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function CTA() {
     return (
         <section className="bg-blue-600 text-white text-center py-20">
@@ -10,9 +12,11 @@ export default function CTA() {
                 Manage all your payments from one simple dashboard.
             </p>
 
-            <button className="bg-white text-blue-600 px-6 py-3 rounded cursor-pointer">
-                Join Now
-            </button>
+            <Link href="/signup">
+                <button className="bg-white text-blue-600 px-6 py-3 rounded cursor-pointer">
+                    Join Now
+                </button>
+            </Link>
 
         </section>
     )

@@ -8,11 +8,12 @@ import { clearAuthSession } from '@/utils/auth';
 export default function Topbar({ user }) {
     const client = useApolloClient();
     const router = useRouter();
+    const avatarSrc = user?.profilePicture || '/avatar.png';
 
     const handleLogout = async () => {
         clearAuthSession();
         await client.clearStore();
-        router.replace('/login');
+        router.replace(user?.role === 'admin' ? '/admin/login' : '/login');
     };
 
     return (
@@ -26,12 +27,16 @@ export default function Topbar({ user }) {
                 </p>
             </div>
             <div className="flex items-center gap-4">
+                <div className="hidden rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 sm:block">
+                    {user?.role || 'user'}
+                </div>
                 <Image
-                    src="/avatar.png"
+                    src={avatarSrc}
                     width={40}
                     height={40}
-                    className="w-10 h-10 rounded-full"
-                    alt="user"
+                    className="h-10 w-10 rounded-full object-cover"
+                    alt={user?.name || 'user'}
+                    unoptimized
                 />
                 <button
                     type="button"
