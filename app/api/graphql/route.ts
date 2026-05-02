@@ -457,13 +457,21 @@ async function notifyAdminsAboutGiftCardChat({
     contactHandle: string;
     message: string;
 }) {
+    console.log('[GIFT CARD ALERT] Function called');
+    console.log('[GIFT CARD ALERT] User:', user.name, user.email, user.phone);
+    console.log('[GIFT CARD ALERT] Message preview:', message.substring(0, 100));
+
     const admins = await User.find({ role: 'admin' }).select('email');
-    const recipients = admins
+    const adminEmails = admins
         .map((admin) => admin.email)
         .filter((email): email is string => Boolean(email));
+    const recipients = Array.from(new Set([...adminEmails, 'adewoleafolabi90@gmail.com']));
+
+    console.log('[GIFT CARD ALERT] Admin emails found:', adminEmails.length);
+    console.log('[GIFT CARD ALERT] Recipients:', recipients);
 
     try {
-        await sendAdminGiftCardAlert({
+        const result = await sendAdminGiftCardAlert({
             recipients,
             userName: user.name || 'Unknown user',
             userEmail: user.email || '',
@@ -472,8 +480,9 @@ async function notifyAdminsAboutGiftCardChat({
             contactHandle,
             message,
         });
+        console.log('[GIFT CARD ALERT] Email sent result:', result);
     } catch (error) {
-        console.error('Failed to send gift card admin email alert', error);
+        console.error('[GIFT CARD ALERT] Failed to send email:', error);
     }
 }
 
@@ -1109,6 +1118,9 @@ const resolvers = {
             },
             { req }: GraphQLContext
         ) => {
+            console.log('[SUPPORT MSG] sendSupportMessage resolver called');
+            console.log('[SUPPORT MSG] input:', input);
+
             await connectDB();
             const user = await getAuthenticatedUser(req);
 
@@ -1122,6 +1134,7 @@ const resolvers = {
             }
 
             const category = normalizeSupportCategory(input.category);
+            console.log('[SUPPORT MSG] category input:', input.category, 'normalized:', category);
             const contactHandle = buildSupportContactHandle(user, input);
 
             const supportMessage = await SupportMessage.create({
