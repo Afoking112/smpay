@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/mongodb';
+import { getConfiguredAdminAlertRecipients } from '../../../services/email.js';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+    const adminAlertRecipients = getConfiguredAdminAlertRecipients();
+    const smtpConfigured = Boolean(
+        process.env.SMTP_HOST &&
+        process.env.SMTP_USER &&
+        process.env.SMTP_PASS
+    );
+
     const checks = {
         env: {
             mongodb: Boolean(process.env.MONGODB_URI),
@@ -11,6 +19,11 @@ export async function GET() {
             paystack: Boolean(process.env.PAYSTACK_SECRET_KEY),
             vtpassPublicKey: Boolean(process.env.VTPASS_PUBLIC_KEY),
             vtpassSecretKey: Boolean(process.env.VTPASS_SECRET_KEY),
+        },
+        email: {
+            smtpConfigured,
+            adminAlertRecipientsConfigured: adminAlertRecipients.length > 0,
+            adminAlertRecipientCount: adminAlertRecipients.length,
         },
         db: {
             ok: false,

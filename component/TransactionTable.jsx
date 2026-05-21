@@ -33,21 +33,21 @@ export default function Transactions() {
     );
 
     if (loading) {
-        return <div className="bg-white p-6 rounded-xl shadow">Loading transactions...</div>;
+        return <div className="app-card rounded-[1.75rem] p-6 text-[#b7c6d7]">Loading transactions...</div>;
     }
 
     if (error) {
-        return <div className="bg-white p-6 rounded-xl shadow text-red-500">Error loading transactions</div>;
+        return <div className="app-card rounded-[1.75rem] p-6 text-red-300">Error loading transactions</div>;
     }
 
     return (
-        <div id="transactions-section" className="bg-white p-6 rounded-xl shadow">
+        <div id="transactions-section" className="app-card rounded-[1.75rem] p-6 text-white">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold">
+                    <h2 className="text-lg font-semibold text-white">
                         Transaction History
                     </h2>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-[#8ea4ba]">
                         Filter your wallet activity by service, status, or reference.
                     </p>
                 </div>
@@ -57,12 +57,12 @@ export default function Transactions() {
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder="Search by service or reference"
-                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="app-input px-3 py-2 text-sm"
                     />
                     <select
                         value={serviceFilter}
                         onChange={(event) => setServiceFilter(event.target.value)}
-                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="app-input px-3 py-2 text-sm"
                     >
                         {serviceOptions.map((service) => (
                             <option key={service} value={service}>
@@ -73,7 +73,7 @@ export default function Transactions() {
                     <select
                         value={statusFilter}
                         onChange={(event) => setStatusFilter(event.target.value)}
-                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="app-input px-3 py-2 text-sm"
                     >
                         <option value="all">All statuses</option>
                         <option value="Success">Success</option>
@@ -84,19 +84,19 @@ export default function Transactions() {
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl bg-blue-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">Visible Transactions</p>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">{filteredTransactions.length}</p>
+                <div className="app-subcard rounded-[1.4rem] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#00d5ff]">Visible Transactions</p>
+                    <p className="mt-2 text-2xl font-bold text-white">{filteredTransactions.length}</p>
                 </div>
-                <div className="rounded-xl bg-emerald-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Successful Value</p>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">
+                <div className="app-subcard rounded-[1.4rem] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7df2c8]">Successful Value</p>
+                    <p className="mt-2 text-2xl font-bold text-white">
                         {formatCurrency(filteredTransactions.filter((item) => item.status === 'Success').reduce((sum, item) => sum + item.amount, 0))}
                     </p>
                 </div>
-                <div className="rounded-xl bg-amber-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-600">Pending Count</p>
-                    <p className="mt-2 text-2xl font-bold text-gray-900">
+                <div className="app-subcard rounded-[1.4rem] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#ffb347]">Pending Count</p>
+                    <p className="mt-2 text-2xl font-bold text-white">
                         {filteredTransactions.filter((item) => item.status === 'Pending').length}
                     </p>
                 </div>
@@ -104,9 +104,9 @@ export default function Transactions() {
 
             {filteredTransactions.length > 0 ? (
                 <div className="mt-6 overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left text-sm">
                         <thead>
-                            <tr className="border-b">
+                            <tr className="border-b border-white/10 text-[#8ea4ba]">
                                 <th className="py-2">Service</th>
                                 <th>Amount</th>
                                 <th>Status</th>
@@ -116,31 +116,31 @@ export default function Transactions() {
                         </thead>
                         <tbody>
                             {filteredTransactions.map((transaction) => (
-                                <tr key={transaction.id} className="border-b">
+                                <tr key={transaction.id} className="border-b border-white/8 text-[#dce6f0]">
                                     <td className="py-3">{transaction.service}</td>
                                     <td>{formatCurrency(transaction.amount)}</td>
                                     <td>
                                         <span
-                                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            className={`rounded-full px-2 py-1 text-xs font-medium ${
                                                 transaction.status === 'Success'
-                                                    ? 'bg-green-100 text-green-800'
+                                                    ? 'bg-[#7df2c8]/14 text-[#7df2c8]'
                                                     : transaction.status === 'Pending'
-                                                        ? 'bg-yellow-100 text-yellow-800'
-                                                        : 'bg-red-100 text-red-800'
+                                                        ? 'bg-[#ffb347]/14 text-[#ffb347]'
+                                                        : 'bg-red-500/14 text-red-300'
                                             }`}
                                         >
                                             {transaction.status}
                                         </span>
                                     </td>
-                                    <td className="text-sm text-gray-500">{transaction.reference || 'N/A'}</td>
-                                    <td>{new Date(transaction.createdAt).toLocaleDateString()}</td>
+                                    <td className="text-[#8ea4ba]">{transaction.reference || 'N/A'}</td>
+                                    <td className="text-[#8ea4ba]">{new Date(transaction.createdAt).toLocaleDateString()}</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             ) : (
-                <div className="mt-6 text-gray-500 text-center py-8">
+                <div className="mt-6 py-8 text-center text-[#8ea4ba]">
                     No transactions match the current filters yet.
                 </div>
             )}

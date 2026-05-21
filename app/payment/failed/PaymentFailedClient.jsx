@@ -1,30 +1,37 @@
 "use client";
 
 import Link from 'next/link';
+import AuthPageShell from '@/component/AuthPageShell';
 
 export default function PaymentFailedClient({ reference }) {
     return (
-        <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-            <div className="max-w-xl rounded-2xl bg-white p-8 shadow">
-                <p className="text-sm font-medium uppercase tracking-[0.2em] text-red-500">Payment Support</p>
-                <h1 className="mt-3 text-3xl font-bold text-gray-900">We could not confirm that payment yet</h1>
-                <p className="mt-4 text-sm text-gray-600">
-                    This usually means the payment is still pending, the callback was interrupted, or the backend could not finish verification. You can return to the dashboard and try again once the transaction settles.
-                </p>
+        <AuthPageShell
+            badge="Payment Support"
+            title="We could not confirm that payment yet."
+            description="This usually means the payment is still pending, the callback was interrupted, or the backend could not finish verification."
+            accentTitle="What to do next"
+            accentBody="You can return to the dashboard and try again once the transaction settles. If support needs to step in, keep the payment reference close."
+            highlights={[
+                'Pending payments can take a little time to settle.',
+                'Interrupted callbacks can prevent the wallet from updating instantly.',
+                'The payment reference helps support trace what happened faster.',
+            ]}
+        >
+            <div className="space-y-6">
                 {reference ? (
-                    <div className="mt-6 rounded-xl bg-gray-50 p-4 text-sm text-gray-700">
+                    <div className="app-subcard rounded-[1.5rem] p-4 text-sm text-[#dce6f0]">
                         Reference: {reference}
                     </div>
                 ) : null}
-                <div className="mt-6 flex flex-wrap gap-3">
-                    <Link href="/dashboard" className="inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+                <div className="flex flex-wrap gap-3">
+                    <Link href="/dashboard" className="button-primary px-5 py-3 text-sm">
                         Back to Dashboard
                     </Link>
-                    <Link href="/login" className="inline-flex rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700">
+                    <Link href="/login" className="button-secondary px-5 py-3 text-sm">
                         Back to Login
                     </Link>
                 </div>
             </div>
-        </main>
+        </AuthPageShell>
     );
 }

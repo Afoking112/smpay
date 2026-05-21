@@ -10,6 +10,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +21,331 @@
   }
 }
 
+:root {
+  --font-display: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: rgba(0, 213, 255, 0.28);
+  color: #f8fcff;
+}
+
+.landing-grid {
+  background-image:
+    linear-gradient(rgba(133, 164, 194, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(133, 164, 194, 0.08) 1px, transparent 1px);
+  background-size: 72px 72px;
+}
+
+.glass-panel {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(11, 22, 35, 0.78), rgba(9, 18, 31, 0.6));
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.hero-shadow {
+  box-shadow:
+    0 38px 100px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.scene-3d {
+  transform-style: preserve-3d;
+}
+
+.landing-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+}
+
+.float-slow {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+.public-aurora {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(0, 213, 255, 0.16), transparent 28%),
+    radial-gradient(circle at 85% 15%, rgba(125, 242, 200, 0.12), transparent 24%),
+    radial-gradient(circle at 50% 85%, rgba(255, 143, 90, 0.12), transparent 26%),
+    linear-gradient(180deg, #07111c 0%, #0b1523 40%, #09111b 100%);
+}
+
+.public-grid {
+  background-image:
+    linear-gradient(rgba(133, 164, 194, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(133, 164, 194, 0.08) 1px, transparent 1px);
+  background-size: 68px 68px;
+}
+
+.surface-panel-light {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(240, 247, 255, 0.64));
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 28px 70px rgba(7, 17, 28, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.surface-panel-soft {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 24px 60px rgba(3, 10, 18, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.surface-panel-dark {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(9, 18, 31, 0.88), rgba(8, 16, 28, 0.72));
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 28px 72px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.surface-panel-hero {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(0, 213, 255, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(8, 16, 28, 0.96), rgba(11, 22, 35, 0.86));
+  box-shadow:
+    0 34px 80px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.surface-badge {
+  border: 1px solid rgba(125, 242, 200, 0.2);
+  background: rgba(125, 242, 200, 0.1);
+  color: #8df4d0;
+}
+
+.field-light,
+.field-dark,
+.app-input {
+  width: 100%;
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.field-light {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.72);
+  color: #0f172a;
+}
+
+.field-light::placeholder {
+  color: #64748b;
+}
+
+.field-light:focus {
+  border-color: rgba(14, 165, 233, 0.55);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+}
+
+.field-dark,
+.app-input {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 19, 33, 0.86);
+  color: #f3f8ff;
+}
+
+.field-dark::placeholder,
+.app-input::placeholder {
+  color: #8aa0b7;
+}
+
+.field-dark:focus,
+.app-input:focus {
+  border-color: rgba(0, 213, 255, 0.4);
+  box-shadow: 0 0 0 4px rgba(0, 213, 255, 0.12);
+}
+
+.button-primary,
+.button-secondary,
+.button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.button-primary:hover,
+.button-secondary:hover,
+.button-ghost:hover {
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  background: #7df2c8;
+  color: #07111c;
+  box-shadow: 0 14px 28px rgba(125, 242, 200, 0.18);
+}
+
+.button-primary:hover {
+  background: #97f7d4;
+}
+
+.button-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f8fbff;
+}
+
+.button-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.button-ghost {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.74);
+  color: #0f172a;
+}
+
+.button-ghost:hover {
+  border-color: rgba(14, 165, 233, 0.28);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.app-shell-bg {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(0, 213, 255, 0.16), transparent 25%),
+    radial-gradient(circle at 88% 14%, rgba(125, 242, 200, 0.12), transparent 22%),
+    radial-gradient(circle at 50% 85%, rgba(255, 179, 71, 0.12), transparent 24%),
+    linear-gradient(180deg, #050d17 0%, #09111b 42%, #07101a 100%);
+}
+
+.app-shell-grid {
+  background-image:
+    linear-gradient(rgba(133, 164, 194, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(133, 164, 194, 0.06) 1px, transparent 1px);
+  background-size: 58px 58px;
+}
+
+.app-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(8, 16, 28, 0.88), rgba(7, 14, 25, 0.72));
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.app-card-soft {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(12, 21, 34, 0.76), rgba(10, 18, 30, 0.64));
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.app-card-hero {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(0, 213, 255, 0.16), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(125, 242, 200, 0.12), transparent 22%),
+    linear-gradient(135deg, rgba(8, 16, 28, 0.98), rgba(13, 26, 43, 0.86));
+  box-shadow:
+    0 30px 85px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.app-subcard {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.app-pill {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dialog-surface {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(0, 213, 255, 0.14), transparent 26%),
+    linear-gradient(180deg, rgba(8, 16, 28, 0.96), rgba(8, 16, 28, 0.9));
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: reveal-up 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes reveal-up {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .button-primary:hover,
+  .button-secondary:hover,
+  .button-ghost:hover {
+    transform: none;
+  }
 }

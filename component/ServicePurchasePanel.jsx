@@ -248,16 +248,16 @@ export default function ServicePurchasePanel({ service, onClose }) {
     };
 
     return (
-        <section className="rounded-2xl bg-white p-6 shadow">
+        <section className="app-card rounded-[1.75rem] p-6 text-white">
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{content.title}</h2>
-                    <p className="mt-1 text-sm text-gray-500">{content.description}</p>
+                    <h2 className="text-lg font-semibold text-white">{content.title}</h2>
+                    <p className="mt-1 text-sm text-[#8ea4ba]">{content.description}</p>
                 </div>
                 <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+                    className="button-secondary px-4 py-2 text-sm"
                 >
                     Hide Panel
                 </button>
@@ -280,23 +280,23 @@ export default function ServicePurchasePanel({ service, onClose }) {
 
             {service === 'airtime' ? (
                 <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleAirtimeSubmit}>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Phone Number
                         <input
                             type="tel"
                             value={airtimeForm.phone}
                             onChange={(event) => setAirtimeForm({ ...airtimeForm, phone: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             placeholder="08012345678"
                             required
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Network
                         <select
                             value={airtimeForm.network}
                             onChange={(event) => setAirtimeForm({ ...airtimeForm, network: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                         >
                             {networkOptions.map((network) => (
                                 <option key={network} value={network}>
@@ -305,7 +305,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                             ))}
                         </select>
                     </label>
-                    <label className="text-sm font-medium text-gray-700 md:col-span-2">
+                    <label className="text-sm font-medium text-[#dce6f0] md:col-span-2">
                         Amount
                         <input
                             type="number"
@@ -313,19 +313,19 @@ export default function ServicePurchasePanel({ service, onClose }) {
                             step="10"
                             value={airtimeForm.amount}
                             onChange={(event) => setAirtimeForm({ ...airtimeForm, amount: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             placeholder="500"
                             required
                         />
                     </label>
-                    <div className="md:col-span-2 flex items-center justify-between gap-4 rounded-xl bg-gray-50 px-4 py-4">
-                        <p className="text-sm text-gray-600">
+                    <div className="app-subcard md:col-span-2 flex items-center justify-between gap-4 rounded-[1.25rem] px-4 py-4">
+                        <p className="text-sm text-[#b7c6d7]">
                             Wallet debit: {formatCurrency(airtimeForm.amount || 0)}
                         </p>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="button-primary rounded-full px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {loading ? 'Processing...' : 'Buy Airtime'}
                         </button>
@@ -335,18 +335,18 @@ export default function ServicePurchasePanel({ service, onClose }) {
 
             {service === 'data' ? (
                 <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleDataSubmit}>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Phone Number
                         <input
                             type="tel"
                             value={dataForm.phone}
                             onChange={(event) => setDataForm({ ...dataForm, phone: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             placeholder="08012345678"
                             required
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Network
                         <select
                             value={dataForm.network}
@@ -359,7 +359,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                                     planId: nextPlans[0]?.providerPlanId || '',
                                 });
                             }}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                         >
                             {networkOptions.map((network) => (
                                 <option key={network} value={network}>
@@ -368,12 +368,12 @@ export default function ServicePurchasePanel({ service, onClose }) {
                             ))}
                         </select>
                     </label>
-                    <label className="text-sm font-medium text-gray-700 md:col-span-2">
+                    <label className="text-sm font-medium text-[#dce6f0] md:col-span-2">
                         Data Plan
                         <select
                             value={selectedDataPlan?.providerPlanId || ''}
                             onChange={(event) => setDataForm({ ...dataForm, planId: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             required
                         >
                             {dataPlans.map((plan) => (
@@ -383,17 +383,17 @@ export default function ServicePurchasePanel({ service, onClose }) {
                             ))}
                         </select>
                     </label>
-                    <div className="md:col-span-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <div className="md:col-span-2 rounded-[1.25rem] border border-[#ffb347]/30 bg-[#ffb347]/10 px-4 py-3 text-sm text-[#ffd493]">
                         This starter catalog removes manual plan ID entry. Replace the default plan identifiers in the code with your exact VTpass production IDs before going live.
                     </div>
-                    <div className="md:col-span-2 flex items-center justify-between gap-4 rounded-xl bg-gray-50 px-4 py-4">
-                        <p className="text-sm text-gray-600">
+                    <div className="app-subcard md:col-span-2 flex items-center justify-between gap-4 rounded-[1.25rem] px-4 py-4">
+                        <p className="text-sm text-[#b7c6d7]">
                             Wallet debit: {formatCurrency(selectedDataPlan?.amount || 0)}
                         </p>
                         <button
                             type="submit"
                             disabled={loading || !selectedDataPlan}
-                            className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="button-primary rounded-full px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {loading ? 'Processing...' : 'Buy Data'}
                         </button>
@@ -403,29 +403,29 @@ export default function ServicePurchasePanel({ service, onClose }) {
 
             {!['airtime', 'data', 'gift-card'].includes(service) ? (
                 <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleRequestSubmit}>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         {requestLabels.provider}
                         <input
                             type="text"
                             value={requestForm.provider}
                             onChange={(event) => setRequestForm({ ...requestForm, provider: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             placeholder={requestLabels.provider}
                             required
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         {requestLabels.accountOrPhone}
                         <input
                             type="text"
                             value={requestForm.accountOrPhone}
                             onChange={(event) => setRequestForm({ ...requestForm, accountOrPhone: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             placeholder={requestLabels.accountOrPhone}
                             required
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Amount
                         <input
                             type="number"
@@ -433,35 +433,35 @@ export default function ServicePurchasePanel({ service, onClose }) {
                             step="10"
                             value={requestForm.amount}
                             onChange={(event) => setRequestForm({ ...requestForm, amount: event.target.value })}
-                            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 text-sm"
                             placeholder="5000"
                             required
                         />
                     </label>
                     {service === 'airtime-cash' ? (
-                        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 md:col-span-2">
+                        <div className="rounded-[1.25rem] border border-[#ffb347]/30 bg-[#ffb347]/10 px-4 py-3 text-sm text-[#ffd493] md:col-span-2">
                             <p className="font-semibold">Airtime to cash preview</p>
                             <p className="mt-2">
                                 We charge 7% on airtime conversions. If you submit {formatCurrency(airtimeCashAmount)}, the amount to be credited is {formatCurrency(airtimeCashCredit)}.
                             </p>
-                            <p className="mt-1 text-amber-700">Charge: {formatCurrency(airtimeCashFee)}</p>
+                            <p className="mt-1 text-[#ffb347]">Charge: {formatCurrency(airtimeCashFee)}</p>
                         </div>
                     ) : (
-                        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+                        <div className="rounded-[1.25rem] border border-dashed border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#b7c6d7]">
                             This flow currently creates a tracked manual-review request so operations can follow up without charging the wallet automatically.
                         </div>
                     )}
-                    <label className="text-sm font-medium text-gray-700 md:col-span-2">
+                    <label className="text-sm font-medium text-[#dce6f0] md:col-span-2">
                         Notes
                         <textarea
                             value={requestForm.note}
                             onChange={(event) => setRequestForm({ ...requestForm, note: event.target.value })}
-                            className="mt-2 min-h-[120px] w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 min-h-[120px] text-sm"
                             placeholder="Add useful details for manual review"
                         />
                     </label>
-                    <div className="md:col-span-2 flex items-center justify-between gap-4 rounded-xl bg-gray-50 px-4 py-4">
-                        <p className="text-sm text-gray-600">
+                    <div className="app-subcard md:col-span-2 flex items-center justify-between gap-4 rounded-[1.25rem] px-4 py-4">
+                        <p className="text-sm text-[#b7c6d7]">
                             {service === 'airtime-cash'
                                 ? `Request value: ${formatCurrency(requestForm.amount || 0)} | Net credit: ${formatCurrency(airtimeCashCredit)}`
                                 : `Request value: ${formatCurrency(requestForm.amount || 0)}`}
@@ -469,7 +469,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="button-primary rounded-full px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {loading ? 'Submitting...' : 'Submit Request'}
                         </button>

@@ -9,6 +9,6 @@
 - [x] 6. Update GraphQL schema and resolvers (app/api/graphql/route.ts)
 - [x] 7. Create Paystack webhook route
 - [x] 8. Update client queries.js
-- [x] 9. Create .env.example
+- [x] 9. Use .env for configuration
 - [x] 10. Complete task
 

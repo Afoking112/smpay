@@ -28,23 +28,23 @@ export default function QuickServices({ selectedService, onSelectService }) {
                         type="button"
                         disabled={!enabled}
                         onClick={() => enabled && onSelectService?.(id)}
-                        className={`group rounded-xl p-6 text-left shadow transition-all duration-200 ${
+                        className={`group rounded-[1.5rem] p-6 text-left transition-all duration-200 ${
                             enabled
                                 ? isActive
-                                    ? 'bg-blue-600 text-white shadow-lg'
-                                    : 'bg-white hover:-translate-y-1 hover:shadow-lg'
-                                : 'bg-white/70 text-gray-400 cursor-not-allowed'
+                                    ? 'app-card-hero text-white shadow-lg'
+                                    : 'app-card-soft text-white hover:-translate-y-1'
+                                : 'app-card-soft cursor-not-allowed text-[#60748b]'
                         }`}
                     >
                         <div className="flex items-center justify-between">
-                            <Icon className={`text-2xl ${isActive ? 'text-white' : 'text-blue-600'}`} />
+                            <Icon className={`text-2xl ${isActive ? 'text-white' : 'text-[#7df2c8]'}`} />
                             {!enabled ? (
-                                <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
+                                <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-xs font-medium text-[#8ea4ba]">
                                     Soon
                                 </span>
                             ) : null}
                         </div>
-                        <p className="mt-4 font-medium">{title}</p>
+                        <p className="mt-4 font-medium text-white">{title}</p>
                     </button>
                 );
             })}

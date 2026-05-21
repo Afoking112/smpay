@@ -31,21 +31,21 @@ const items = [
 export default function FeaturesDropdown() {
     return (
         <div className="relative group">
-            <button className="flex items-center gap-1 hover:text-blue-600 transition">
+            <button className="flex items-center gap-1 transition hover:text-[#7df2c8]">
                 Features
                 <span className="text-xs transition-transform duration-300 group-hover:rotate-180">
                     v
                 </span>
             </button>
 
-            <div className="absolute left-0 mt-4 w-72 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transform translate-y-3 group-hover:translate-y-0 transition-all duration-300">
+            <div className="surface-panel-dark absolute left-0 mt-4 w-80 rounded-[1.5rem] opacity-0 invisible translate-y-3 transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                 <div className="p-2">
                     {items.map(({ href, icon: Icon, title, description }) => (
-                        <Link key={title} href={href} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-100 transition">
-                            <Icon className="text-blue-600 text-xl mt-1" />
+                        <Link key={title} href={href} className="flex items-start gap-3 rounded-[1.1rem] p-3 transition hover:bg-white/6">
+                            <Icon className="mt-1 text-xl text-[#7df2c8]" />
                             <div>
-                                <p className="font-medium">{title}</p>
-                                <p className="text-sm text-gray-500">{description}</p>
+                                <p className="font-medium text-white">{title}</p>
+                                <p className="text-sm text-[#8ea4ba]">{description}</p>
                             </div>
                         </Link>
                     ))}

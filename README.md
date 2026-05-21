@@ -28,13 +28,13 @@ SM Pay is a Next.js fintech starter focused on wallet funding, airtime and data 
 npm install
 ```
 
-2. Create your environment file from the example:
+2. Review and update the existing `.env` file:
 
 ```bash
-copy .env.example .env.local
+notepad .env
 ```
 
-3. Fill in the required environment variables:
+3. Make sure `.env` includes the required environment variables:
 
 ```env
 MONGODB_URI=
@@ -44,7 +44,15 @@ PAYSTACK_PUBLIC_KEY=
 VTPASS_API_KEY=
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+SMTP_SECURE=false
+SMTP_FROM=
 ```
+
+For Gmail SMTP, `SMTP_PASS` must be a Gmail App Password, not the normal account password.
 
 4. Start the development server:
 
@@ -115,9 +123,18 @@ This workspace now uses a non-SRV Atlas connection string locally to avoid the S
 - The success return page verifies the payment and updates wallet state
 - The webhook also protects against double-crediting the same reference
 
+## Gift Card Alerts
+
+- Gift card chats are saved in the support thread and appear in the admin dashboard as unread alerts
+- If SMTP is configured, gift card chats send an email alert only to `adewoleafolabi90@gmail.com`
+- `/api/health` now reports whether SMTP is configured for gift card email delivery
+
 ## Next Suggested Improvements
 
 - Add a live data-plan catalog instead of manual plan ID entry
+- Add status-change notes and audit history for service requests
+- Add resend-OTP support and delivery audit logs for password reset emails
+- Replace 5-second support chat polling with realtime updates or push notifications for admins
 - Add About and Contact content management or CMS backing
 - Add dashboard charts and richer transaction filtering
 - Add tests for auth, funding, and service purchases

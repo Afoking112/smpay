@@ -1,19 +1,11 @@
-import Navbar from "@/component/Navbar"
-import Hero from "@/component/Hero"
-import Services from "@/component/Service"
-import CTA from "@/component/CTA"
-import Newsletter from "@/component/Newsletter"
-import Footer from "@/component/Footer"
+import type { Metadata } from "next";
+import LandingExperience from "@/component/LandingExperience";
 
 export default function Home() {
-    return (
-        <main>
-            <Navbar />
-            <Hero />
-            <Services />
-            <CTA />
-            <Newsletter />
-            <Footer />
-        </main>
-    )
+    return <LandingExperience />;
 }
+
+export const metadata: Metadata = {
+    title: "SM PAY | 3D Payment Command Center",
+    description: "Fund your wallet, buy airtime and data, manage tracked requests, and keep payment visibility inside one polished SM PAY experience.",
+};

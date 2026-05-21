@@ -10,6 +10,7 @@ import {
     ADMIN_USER_QUERY,
     ADMIN_USERS_QUERY,
     DELETE_USER_MUTATION,
+    UPDATE_SERVICE_REQUEST_STATUS_MUTATION,
     UPDATE_SUPPORT_MESSAGE_STATUS_MUTATION,
 } from '@/lib/queries';
 import useSessionUser from '@/utils/useSessionUser';
@@ -42,9 +43,9 @@ function buildTelegramLink(handle) {
 
 function AdminLoading() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-100">
-            <div className="rounded-2xl bg-white px-8 py-6 text-center shadow">
-                <p className="text-lg font-semibold text-gray-900">Loading admin monitor...</p>
+        <div className="app-shell-bg app-shell-grid flex min-h-screen items-center justify-center px-4">
+            <div className="app-card rounded-[2rem] px-8 py-6 text-center text-white">
+                <p className="text-lg font-semibold">Loading admin monitor...</p>
             </div>
         </div>
     );
@@ -79,6 +80,7 @@ export default function AdminPage() {
         fetchPolicy: 'network-only',
     });
     const [deleteUser, { loading: deletingUser }] = useMutation(DELETE_USER_MUTATION);
+    const [updateServiceRequestStatus, { loading: updatingRequestStatus }] = useMutation(UPDATE_SERVICE_REQUEST_STATUS_MUTATION);
     const [updateSupportMessageStatus] = useMutation(UPDATE_SUPPORT_MESSAGE_STATUS_MUTATION);
     const [adminReplySupportMessage, { loading: sendingReply }] = useMutation(ADMIN_REPLY_SUPPORT_MESSAGE_MUTATION);
     const [replyForm, setReplyForm] = useState({
@@ -97,10 +99,10 @@ export default function AdminPage() {
 
     if (sessionError) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-                <div className="rounded-2xl bg-white p-8 shadow">
-                    <p className="text-lg font-semibold text-gray-900">We could not load the admin monitor.</p>
-                    <p className="mt-2 text-sm text-gray-500">{sessionError.message}</p>
+            <div className="app-shell-bg app-shell-grid flex min-h-screen items-center justify-center px-4">
+                <div className="app-card rounded-[2rem] p-8 text-white">
+                    <p className="text-lg font-semibold text-white">We could not load the admin monitor.</p>
+                    <p className="mt-2 text-sm text-[#8ea4ba]">{sessionError.message}</p>
                 </div>
             </div>
         );
@@ -154,6 +156,17 @@ export default function AdminPage() {
         }
     };
 
+    const handleServiceRequestStatus = async (requestId, status) => {
+        try {
+            await updateServiceRequestStatus({
+                variables: { requestId, status },
+            });
+            await refreshAll();
+        } catch (mutationError) {
+            window.alert(mutationError.message);
+        }
+    };
+
     const handleAdminReply = async (event) => {
         event.preventDefault();
 
@@ -185,11 +198,11 @@ export default function AdminPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-100">
+        <div className="app-shell-bg app-shell-grid min-h-screen pb-24 lg:pb-8">
             <Topbar user={user} />
 
-            <div className="space-y-6 p-6">
-                <section className="rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-blue-900 p-6 text-white shadow-lg">
+            <div className="mx-auto max-w-[1480px] space-y-6 px-4 py-4 sm:px-6 lg:px-8">
+                <section className="surface-panel-hero rounded-[2rem] p-6 text-white shadow-lg sm:p-8">
                     <h1 className="text-2xl font-bold">Admin Monitor</h1>
                     <p className="mt-2 max-w-3xl text-sm text-slate-200">
                         Search users, inspect their transactions and requests, review support alerts, and delete accounts when needed.
@@ -197,26 +210,26 @@ export default function AdminPage() {
                 </section>
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl bg-white p-5 shadow">
+                    <div className="surface-panel-light rounded-[1.5rem] p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">Users</p>
                         <p className="mt-3 text-3xl font-bold text-gray-900">{users.length}</p>
                     </div>
-                    <div className="rounded-2xl bg-white p-5 shadow">
+                    <div className="surface-panel-light rounded-[1.5rem] p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600">Wallet Value</p>
                         <p className="mt-3 text-3xl font-bold text-gray-900">{formatCurrency(totalWalletBalance)}</p>
                     </div>
-                    <div className="rounded-2xl bg-white p-5 shadow">
+                    <div className="surface-panel-light rounded-[1.5rem] p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-600">Unread Messages</p>
                         <p className="mt-3 text-3xl font-bold text-gray-900">{unreadMessages}</p>
                     </div>
-                    <div className="rounded-2xl bg-white p-5 shadow">
+                    <div className="surface-panel-light rounded-[1.5rem] p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-600">Tracked Activity</p>
                         <p className="mt-3 text-3xl font-bold text-gray-900">{totalTransactions + totalServiceRequests}</p>
                     </div>
                 </section>
 
                 <section className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)_360px]">
-                    <div className="rounded-3xl bg-white p-5 shadow">
+                    <div className="surface-panel-light rounded-[1.75rem] p-5">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900">Users</h2>
@@ -293,7 +306,7 @@ export default function AdminPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="rounded-3xl bg-white p-6 shadow">
+                        <div className="surface-panel-light rounded-[1.75rem] p-6">
                             {selectedUserLoading ? (
                                 <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-sm text-gray-500">
                                     Loading selected user...
@@ -344,15 +357,15 @@ export default function AdminPage() {
                                     </div>
 
                                     <div className="mt-6 grid gap-4 md:grid-cols-3">
-                                        <div className="rounded-2xl bg-slate-50 p-4">
+                                        <div className="surface-panel-soft rounded-[1.25rem] p-4">
                                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Wallet</p>
                                             <p className="mt-2 text-2xl font-bold text-gray-900">{formatCurrency(selectedUser.walletBalance || 0)}</p>
                                         </div>
-                                        <div className="rounded-2xl bg-slate-50 p-4">
+                                        <div className="surface-panel-soft rounded-[1.25rem] p-4">
                                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Transactions</p>
                                             <p className="mt-2 text-2xl font-bold text-gray-900">{selectedUser.transactionCount || 0}</p>
                                         </div>
-                                        <div className="rounded-2xl bg-slate-50 p-4">
+                                        <div className="surface-panel-soft rounded-[1.25rem] p-4">
                                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Support Messages</p>
                                             <p className="mt-2 text-2xl font-bold text-gray-900">{selectedUser.supportMessageCount || 0}</p>
                                         </div>
@@ -392,7 +405,7 @@ export default function AdminPage() {
 
                         {selectedUser ? (
                             <>
-                                <div className="rounded-3xl bg-white p-6 shadow">
+                                <div className="surface-panel-light rounded-[1.75rem] p-6">
                                     <h3 className="text-lg font-semibold text-gray-900">Transactions</h3>
                                     <div className="mt-4 overflow-x-auto">
                                         <table className="w-full text-left text-sm">
@@ -423,7 +436,7 @@ export default function AdminPage() {
                                     </div>
                                 </div>
 
-                                <div className="rounded-3xl bg-white p-6 shadow">
+                                <div className="surface-panel-light rounded-[1.75rem] p-6">
                                     <h3 className="text-lg font-semibold text-gray-900">Service Requests</h3>
                                     <div className="mt-4 space-y-4">
                                         {selectedRequests.length === 0 ? (
@@ -432,7 +445,7 @@ export default function AdminPage() {
                                             </div>
                                         ) : null}
                                         {selectedRequests.map((request) => (
-                                            <article key={request.id} className="rounded-2xl border border-gray-100 p-4">
+                                            <article key={request.id} className="surface-panel-soft rounded-[1.5rem] p-4">
                                                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                                                     <div>
                                                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">{request.category}</p>
@@ -453,6 +466,19 @@ export default function AdminPage() {
                                                         ) : null}
                                                         <p className="mt-2 text-sm text-gray-500">{request.status}</p>
                                                         <p className="mt-1 text-xs text-gray-400">{new Date(request.createdAt).toLocaleString()}</p>
+                                                        <div className="mt-3 flex flex-wrap gap-2 md:justify-end">
+                                                            {['In Review', 'Completed', 'Declined'].map((status) => (
+                                                                <button
+                                                                    key={status}
+                                                                    type="button"
+                                                                    onClick={() => handleServiceRequestStatus(request.id, status)}
+                                                                    disabled={updatingRequestStatus || request.status === status}
+                                                                    className="rounded-full border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                                                >
+                                                                    Mark {status}
+                                                                </button>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </article>
@@ -460,7 +486,7 @@ export default function AdminPage() {
                                     </div>
                                 </div>
 
-                                <div className="rounded-3xl bg-white p-6 shadow">
+                                <div className="surface-panel-light rounded-[1.75rem] p-6">
                                     <h3 className="text-lg font-semibold text-gray-900">Live Support Chat</h3>
                                     <p className="mt-2 text-sm text-gray-500">
                                         Gift card chats and support replies appear here in one thread.
@@ -575,7 +601,7 @@ export default function AdminPage() {
                         ) : null}
                     </div>
 
-                    <div className="rounded-3xl bg-white p-5 shadow">
+                    <div className="surface-panel-light rounded-[1.75rem] p-5">
                         <div className="flex items-center justify-between gap-3">
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900">Unread Alerts</h2>
@@ -617,7 +643,7 @@ export default function AdminPage() {
                                 );
 
                                 return (
-                                    <article key={message.id} className="rounded-2xl border border-gray-100 p-4">
+                                    <article key={message.id} className="surface-panel-soft rounded-[1.5rem] p-4">
                                         <button
                                             type="button"
                                             onClick={() => setSelectedUserId(message.user?.id || '')}

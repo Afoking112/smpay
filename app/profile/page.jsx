@@ -9,9 +9,9 @@ import useSessionUser from '@/utils/useSessionUser';
 
 function ProfileLoading() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-100">
-            <div className="rounded-2xl bg-white px-8 py-6 text-center shadow">
-                <p className="text-lg font-semibold text-gray-900">Loading your profile...</p>
+        <div className="app-shell-bg app-shell-grid flex min-h-screen items-center justify-center px-4">
+            <div className="app-card rounded-[2rem] px-8 py-6 text-center text-white">
+                <p className="text-lg font-semibold">Loading your profile...</p>
             </div>
         </div>
     );
@@ -84,8 +84,8 @@ function ProfileEditor({ user }) {
 
     return (
         <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <div className="rounded-3xl bg-white p-6 shadow">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">Preview</p>
+            <div className="app-card rounded-[1.75rem] p-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#00d5ff]">Preview</p>
                 <div className="mt-5 flex flex-col items-center text-center">
                     {formData.profilePicture ? (
                         <Image
@@ -97,85 +97,85 @@ function ProfileEditor({ user }) {
                             unoptimized
                         />
                     ) : (
-                        <div className="flex h-28 w-28 items-center justify-center rounded-full bg-blue-50 text-3xl font-bold text-blue-700">
+                        <div className="flex h-28 w-28 items-center justify-center rounded-full bg-white/[0.06] text-3xl font-bold text-[#7df2c8]">
                             {(formData.name || user.name || 'U').slice(0, 1).toUpperCase()}
                         </div>
                     )}
-                    <h2 className="mt-4 text-xl font-semibold text-gray-900">{formData.name || user.name}</h2>
-                    <p className="mt-1 text-sm text-gray-500">{formData.phone || user.phone}</p>
-                    <p className="mt-3 text-sm text-gray-600">
+                    <h2 className="mt-4 text-xl font-semibold text-white">{formData.name || user.name}</h2>
+                    <p className="mt-1 text-sm text-[#8ea4ba]">{formData.phone || user.phone}</p>
+                    <p className="mt-3 text-sm text-[#b7c6d7]">
                         {formData.state || 'State not added yet'}
                     </p>
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-[#8ea4ba]">
                         {formData.address || 'Address not added yet'}
                     </p>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="rounded-3xl bg-white p-6 shadow">
+            <form onSubmit={handleSubmit} className="app-card rounded-[1.75rem] p-6">
                 <div className="grid gap-5 md:grid-cols-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Full Name
                         <input
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-dark mt-2"
                             required
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Phone Number
                         <input
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-dark mt-2"
                             required
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         State
                         <input
                             name="state"
                             value={formData.state}
                             onChange={handleChange}
                             placeholder="Lagos"
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-dark mt-2"
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-[#dce6f0]">
                         Telegram Username
                         <input
                             name="telegramUsername"
                             value={formData.telegramUsername}
                             onChange={handleChange}
                             placeholder="@yourhandle"
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-dark mt-2"
                         />
                     </label>
-                    <label className="text-sm font-medium text-gray-700 md:col-span-2">
+                    <label className="text-sm font-medium text-[#dce6f0] md:col-span-2">
                         Address
                         <textarea
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
                             placeholder="Enter your full address"
-                            className="mt-2 min-h-[120px] w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-dark mt-2 min-h-[120px]"
                         />
                     </label>
-                    <div className="text-sm font-medium text-gray-700 md:col-span-2">
+                    <div className="text-sm font-medium text-[#dce6f0] md:col-span-2">
                         Profile Picture
-                        <div className="mt-2 rounded-2xl border border-dashed border-gray-300 p-4">
+                        <div className="mt-2 rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-4">
                             <input type="file" accept="image/*" onChange={handleImageChange} />
-                            <p className="mt-2 text-xs text-gray-500">
+                            <p className="mt-2 text-xs text-[#8ea4ba]">
                                 Upload a clear image under 1MB. It will be shown in your dashboard and admin view.
                             </p>
                             {formData.profilePicture ? (
                                 <button
                                     type="button"
                                     onClick={() => setFormData((current) => ({ ...current, profilePicture: '' }))}
-                                    className="mt-3 rounded-full border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-50"
+                                    className="button-secondary mt-3 px-3 py-1 text-xs"
                                 >
                                     Remove picture
                                 </button>
@@ -199,11 +199,11 @@ function ProfileEditor({ user }) {
                     <button
                         type="submit"
                         disabled={saving}
-                        className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="button-primary px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {saving ? 'Saving...' : 'Save Profile'}
                     </button>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-[#8ea4ba]">
                         Keeping this updated helps support respond faster on WhatsApp or Telegram.
                     </p>
                 </div>
@@ -224,10 +224,10 @@ export default function ProfilePage() {
 
     if (sessionError) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-                <div className="rounded-2xl bg-white p-8 shadow">
-                    <p className="text-lg font-semibold text-gray-900">We could not load your profile.</p>
-                    <p className="mt-2 text-sm text-gray-500">{sessionError.message}</p>
+            <div className="app-shell-bg app-shell-grid flex min-h-screen items-center justify-center px-4">
+                <div className="app-card rounded-[2rem] p-8 text-white">
+                    <p className="text-lg font-semibold text-white">We could not load your profile.</p>
+                    <p className="mt-2 text-sm text-[#8ea4ba]">{sessionError.message}</p>
                 </div>
             </div>
         );

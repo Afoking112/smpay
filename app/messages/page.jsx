@@ -15,9 +15,9 @@ const categoryOptions = ['General', 'Gift Card'];
 
 function MessagesLoading() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-100">
-            <div className="rounded-2xl bg-white px-8 py-6 text-center shadow">
-                <p className="text-lg font-semibold text-gray-900">Loading your support chat...</p>
+        <div className="app-shell-bg app-shell-grid flex min-h-screen items-center justify-center px-4">
+            <div className="app-card rounded-[2rem] px-8 py-6 text-center text-white">
+                <p className="text-lg font-semibold">Loading your support chat...</p>
             </div>
         </div>
     );
@@ -97,27 +97,27 @@ function MessagesContent({ user }) {
 
     return (
         <section className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-            <div className="rounded-3xl bg-white p-6 shadow">
+            <div className="app-card rounded-[1.75rem] p-6 text-white">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Send support message</h2>
-                        <p className="mt-2 text-sm text-gray-500">
+                        <h2 className="text-xl font-semibold text-white">Send support message</h2>
+                        <p className="mt-2 text-sm text-[#8ea4ba]">
                             Start a normal support request or a gift card chat from here.
                         </p>
                     </div>
-                    <div className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                    <div className="rounded-full bg-[#00d5ff]/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#00d5ff]">
                         Live Updates
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[#dce6f0]">
                         Category
                         <select
                             name="category"
                             value={formData.category}
                             onChange={handleChange}
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2"
                         >
                             {categoryOptions.map((category) => (
                                 <option key={category} value={category}>
@@ -127,24 +127,24 @@ function MessagesContent({ user }) {
                         </select>
                     </label>
 
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[#dce6f0]">
                         Subject
                         <input
                             name="subject"
                             value={formData.subject}
                             onChange={handleChange}
                             placeholder={formData.category === 'Gift Card' ? 'Gift card sale request' : 'General support request'}
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2"
                             required
                         />
                     </label>
 
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[#dce6f0]">
                         Preferred Channel
                         <select
                             value={formData.preferredChannel}
                             onChange={handleChannelChange}
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2"
                         >
                             {channelOptions.map((channel) => (
                                 <option key={channel} value={channel}>
@@ -154,18 +154,18 @@ function MessagesContent({ user }) {
                         </select>
                     </label>
 
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[#dce6f0]">
                         Contact Detail
                         <input
                             name="contactHandle"
                             value={formData.contactHandle}
                             onChange={handleChange}
                             placeholder={formData.preferredChannel === 'Telegram' ? '@username' : '08012345678'}
-                            className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2"
                         />
                     </label>
 
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-[#dce6f0]">
                         Message
                         <textarea
                             name="message"
@@ -174,7 +174,7 @@ function MessagesContent({ user }) {
                             placeholder={formData.category === 'Gift Card'
                                 ? 'Tell the admin what gift card you want to sell.'
                                 : 'Explain the issue you want the admin to review.'}
-                            className="mt-2 min-h-[180px] w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="app-input mt-2 min-h-[180px]"
                             required
                         />
                     </label>
@@ -193,28 +193,28 @@ function MessagesContent({ user }) {
                     <button
                         type="submit"
                         disabled={sending}
-                        className="w-full rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="button-primary w-full px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {sending ? 'Sending...' : 'Send to Support'}
                     </button>
                 </form>
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow">
-                <h2 className="text-xl font-semibold text-gray-900">Support conversation</h2>
-                <p className="mt-2 text-sm text-gray-500">
+            <div className="app-card rounded-[1.75rem] p-6 text-white">
+                <h2 className="text-xl font-semibold text-white">Support conversation</h2>
+                <p className="mt-2 text-sm text-[#8ea4ba]">
                     This updates automatically when an admin replies.
                 </p>
 
                 <div className="mt-5 space-y-4">
                     {messagesLoading ? (
-                        <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-sm text-gray-500">
+                        <div className="rounded-2xl border border-dashed border-white/10 p-6 text-sm text-[#8ea4ba]">
                             Loading support chat...
                         </div>
                     ) : null}
 
                     {!messagesLoading && messages.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-gray-200 p-6 text-sm text-gray-500">
+                        <div className="rounded-2xl border border-dashed border-white/10 p-6 text-sm text-[#8ea4ba]">
                             No support messages yet. Your first message will appear here.
                         </div>
                     ) : null}
@@ -227,27 +227,27 @@ function MessagesContent({ user }) {
                                 key={messageItem.id}
                                 className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm ${
                                     isUserMessage
-                                        ? 'ml-auto bg-blue-600 text-white'
-                                        : 'bg-slate-50 text-gray-900'
+                                        ? 'ml-auto bg-[#00d5ff]/18 text-white'
+                                        : 'app-subcard text-white'
                                 }`}
                             >
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${
-                                        isUserMessage ? 'text-blue-100' : 'text-emerald-600'
+                                        isUserMessage ? 'text-[#c8f9ea]' : 'text-[#7df2c8]'
                                     }`}>
                                         {isUserMessage ? 'You' : messageItem.senderName || 'Admin'}
                                     </span>
-                                    <span className={`text-xs ${isUserMessage ? 'text-blue-100' : 'text-gray-400'}`}>
+                                    <span className={`text-xs ${isUserMessage ? 'text-[#c8f9ea]' : 'text-[#8ea4ba]'}`}>
                                         {messageItem.category}
                                     </span>
                                 </div>
-                                <h3 className={`mt-2 font-semibold ${isUserMessage ? 'text-white' : 'text-gray-900'}`}>
+                                <h3 className="mt-2 font-semibold text-white">
                                     {messageItem.subject}
                                 </h3>
-                                <p className={`mt-2 text-sm leading-6 ${isUserMessage ? 'text-blue-50' : 'text-gray-600'}`}>
+                                <p className={`mt-2 text-sm leading-6 ${isUserMessage ? 'text-[#e7f9ff]' : 'text-[#b7c6d7]'}`}>
                                     {messageItem.message}
                                 </p>
-                                <div className={`mt-3 flex flex-wrap gap-3 text-xs ${isUserMessage ? 'text-blue-100' : 'text-gray-400'}`}>
+                                <div className={`mt-3 flex flex-wrap gap-3 text-xs ${isUserMessage ? 'text-[#c8f9ea]' : 'text-[#8ea4ba]'}`}>
                                     <span>{messageItem.preferredChannel}</span>
                                     <span>{messageItem.contactHandle || 'No contact detail'}</span>
                                     <span>{new Date(messageItem.createdAt).toLocaleString()}</span>
@@ -273,10 +273,10 @@ export default function MessagesPage() {
 
     if (sessionError) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4">
-                <div className="rounded-2xl bg-white p-8 shadow">
-                    <p className="text-lg font-semibold text-gray-900">We could not load your support chat.</p>
-                    <p className="mt-2 text-sm text-gray-500">{sessionError.message}</p>
+            <div className="app-shell-bg app-shell-grid flex min-h-screen items-center justify-center px-4">
+                <div className="app-card rounded-[2rem] p-8 text-white">
+                    <p className="text-lg font-semibold text-white">We could not load your support chat.</p>
+                    <p className="mt-2 text-sm text-[#8ea4ba]">{sessionError.message}</p>
                 </div>
             </div>
         );

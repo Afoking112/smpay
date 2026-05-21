@@ -9,7 +9,7 @@ const transactionSchema = new mongoose.Schema({
     service: {
         type: String,
         required: true,
-        enum: ['Airtime', 'Data', 'Gift Card', 'Electricity', 'Cable TV', 'Wallet Funding', 'Airtime to Cash'],
+        enum: ['Airtime', 'Data', 'Gift Card', 'Electricity', 'Cable TV', 'Wallet Funding', 'Airtime to Cash', 'Withdrawal'],
     },
     amount: {
         type: Number,

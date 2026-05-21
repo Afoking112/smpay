@@ -27,19 +27,19 @@ export default function ServiceRequestHistory() {
     }, [categoryFilter, requests, statusFilter]);
 
     if (loading) {
-        return <div className="rounded-2xl bg-white p-6 shadow">Loading service requests...</div>;
+        return <div className="app-card rounded-[1.75rem] p-6 text-[#b7c6d7]">Loading service requests...</div>;
     }
 
     if (error) {
-        return <div className="rounded-2xl bg-white p-6 shadow text-red-500">Error loading service request history</div>;
+        return <div className="app-card rounded-[1.75rem] p-6 text-red-300">Error loading service request history</div>;
     }
 
     return (
-        <section className="rounded-2xl bg-white p-6 shadow">
+        <section className="app-card rounded-[1.75rem] p-6 text-white">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Service Request History</h2>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <h2 className="text-lg font-semibold text-white">Service Request History</h2>
+                    <p className="mt-1 text-sm text-[#8ea4ba]">
                         Track manual-review requests for gift cards, airtime-to-cash, electricity, and cable TV.
                     </p>
                 </div>
@@ -47,7 +47,7 @@ export default function ServiceRequestHistory() {
                     <select
                         value={categoryFilter}
                         onChange={(event) => setCategoryFilter(event.target.value)}
-                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="app-input px-3 py-2 text-sm"
                     >
                         {categories.map((category) => (
                             <option key={category} value={category}>
@@ -58,7 +58,7 @@ export default function ServiceRequestHistory() {
                     <select
                         value={statusFilter}
                         onChange={(event) => setStatusFilter(event.target.value)}
-                        className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="app-input px-3 py-2 text-sm"
                     >
                         <option value="all">All statuses</option>
                         <option value="Pending">Pending</option>
@@ -72,21 +72,21 @@ export default function ServiceRequestHistory() {
             {filteredRequests.length > 0 ? (
                 <div className="mt-6 grid gap-4">
                     {filteredRequests.map((request) => (
-                        <article key={request.id} className="rounded-2xl border border-gray-100 p-5">
+                        <article key={request.id} className="app-subcard rounded-[1.5rem] p-5">
                             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                 <div>
-                                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600">
+                                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#00d5ff]">
                                         {request.category}
                                     </p>
-                                    <h3 className="mt-2 text-lg font-semibold text-gray-900">{request.title}</h3>
-                                    <p className="mt-2 text-sm text-gray-600">
+                                    <h3 className="mt-2 text-lg font-semibold text-white">{request.title}</h3>
+                                    <p className="mt-2 text-sm text-[#b7c6d7]">
                                         {request.provider || 'Provider pending'}{request.accountOrPhone ? ` | ${request.accountOrPhone}` : ''}
                                     </p>
                                     {request.note ? (
-                                        <p className="mt-3 text-sm leading-6 text-gray-600">{request.note}</p>
+                                        <p className="mt-3 text-sm leading-6 text-[#8ea4ba]">{request.note}</p>
                                     ) : null}
                                     {request.expectedCredit ? (
-                                        <p className="mt-3 text-sm font-medium text-emerald-600">
+                                        <p className="mt-3 text-sm font-medium text-[#7df2c8]">
                                             Net credit after {request.feePercentage || 0}% charge: {formatCurrency(request.expectedCredit)}
                                         </p>
                                     ) : null}
@@ -94,19 +94,19 @@ export default function ServiceRequestHistory() {
                                 <div className="text-left md:text-right">
                                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                                         request.status === 'Completed'
-                                            ? 'bg-green-100 text-green-700'
+                                            ? 'bg-[#7df2c8]/14 text-[#7df2c8]'
                                             : request.status === 'Declined'
-                                                ? 'bg-red-100 text-red-700'
+                                                ? 'bg-red-500/14 text-red-300'
                                                 : request.status === 'In Review'
-                                                    ? 'bg-blue-100 text-blue-700'
-                                                    : 'bg-amber-100 text-amber-700'
+                                                    ? 'bg-[#00d5ff]/14 text-[#00d5ff]'
+                                                    : 'bg-[#ffb347]/14 text-[#ffb347]'
                                     }`}>
                                         {request.status}
                                     </span>
-                                    <p className="mt-3 text-lg font-semibold text-gray-900">
+                                    <p className="mt-3 text-lg font-semibold text-white">
                                         {formatCurrency(request.amount || 0)}
                                     </p>
-                                    <p className="mt-1 text-sm text-gray-500">
+                                    <p className="mt-1 text-sm text-[#8ea4ba]">
                                         {new Date(request.createdAt).toLocaleString()}
                                     </p>
                                 </div>
@@ -115,7 +115,7 @@ export default function ServiceRequestHistory() {
                     ))}
                 </div>
             ) : (
-                <div className="mt-6 rounded-2xl border border-dashed border-gray-200 p-8 text-center text-gray-500">
+                <div className="mt-6 rounded-[1.5rem] border border-dashed border-white/10 p-8 text-center text-[#8ea4ba]">
                     No service requests match the current filters yet.
                 </div>
             )}

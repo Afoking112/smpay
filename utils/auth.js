@@ -14,7 +14,7 @@ export function getStoredToken() {
 
 export function subscribeToAuthToken(listener) {
     if (typeof window === 'undefined') {
-        return () => {};
+        return () => { };
     }
 
     listeners.add(listener);
@@ -32,7 +32,8 @@ export function storeAuthSession(token) {
     }
 
     localStorage.setItem('token', token);
-    document.cookie = `token=${token}; path=/; max-age=604800`;
+    // 1-2 days (pick 2 days). Adjust if you need a different duration.
+    document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 48}`;
     notifyAuthListeners();
 }
 

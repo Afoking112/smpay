@@ -48,7 +48,19 @@ const userSchema = new mongoose.Schema({
     telegramUsername: {
         type: String,
         default: '',
-    }
+    },
+    passwordResetOtpHash: {
+        type: String,
+        default: '',
+    },
+    passwordResetOtpExpiresAt: {
+        type: Date,
+        default: null,
+    },
+    passwordResetOtpRequestedAt: {
+        type: Date,
+        default: null,
+    },
 }, { timestamps: true });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);

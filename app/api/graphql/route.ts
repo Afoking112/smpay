@@ -9,9 +9,23 @@ import User from '../../../models/User';
 import Transaction from '../../../models/Transaction';
 import ServiceRequest from '../../../models/ServiceRequest';
 import SupportMessage from '../../../models/SupportMessage';
-import { initializePayment, verifyPayment } from '../../../services/paystack.js';
+import Withdrawal from '../../../models/Withdrawal';
+import {
+    createTransferRecipient,
+    generateTransferReference,
+    getPaystackErrorMessage,
+    initializePayment,
+    initiateTransfer,
+    listBanks,
+    resolveAccountNumber,
+    verifyPayment,
+} from '../../../services/paystack.js';
 import { buyAirtime as purchaseAirtime, buyData as purchaseData } from '../../../services/vtu.js';
-import { sendAdminGiftCardAlert } from '../../../services/email.js';
+import {
+    getConfiguredAdminAlertRecipients,
+    sendAdminGiftCardAlert,
+    sendPasswordResetOtp,
+} from '../../../services/email.js';
 import {
     createTransaction,
     creditWallet,
@@ -60,6 +74,17 @@ const typeDefs = gql`
     reference: String!
   }
 
+  type WithdrawalBank {
+    name: String!
+    code: String!
+  }
+
+  type BankAccountResolutionResponse {
+    success: Boolean!
+    message: String!
+    accountName: String
+  }
+
   type TransactionResponse {
     success: Boolean!
     message: String!
@@ -79,6 +104,7 @@ const typeDefs = gql`
     feePercentage: Float
     expectedCredit: Float
     createdAt: String!
+    updatedAt: String!
   }
 
   type ServiceRequestResponse {
@@ -173,6 +199,15 @@ const typeDefs = gql`
     telegramUsername: String
   }
 
+  input WithdrawToBankInput {
+    bankCode: String!
+    bankName: String!
+    accountNumber: String!
+    accountName: String!
+    amount: Float!
+    reason: String
+  }
+
   type AuthPayload {
     success: Boolean!
     message: String!
@@ -183,6 +218,7 @@ const typeDefs = gql`
   type Query {
     me: User
     walletBalance: Float!
+    withdrawalBanks: [WithdrawalBank!]!
     transactions(limit: Int, offset: Int): [Transaction!]!
     serviceRequests(limit: Int, status: String, category: String): [ServiceRequest!]!
     supportMessages(limit: Int, status: String, category: String): [SupportMessage!]!
@@ -196,13 +232,17 @@ const typeDefs = gql`
     login(email: String!, password: String!): AuthPayload!
     adminSignup(input: AdminSignupInput!): AuthPayload!
     adminLogin(email: String!, password: String!): AuthPayload!
-    forgotPassword(email: String!, phone: String!, newPassword: String!): BasicResponse!
+    forgotPassword(email: String!, phone: String!): BasicResponse!
+    resetPasswordWithOtp(email: String!, otp: String!, newPassword: String!): BasicResponse!
     updateProfile(input: UpdateProfileInput!): UserResponse!
     fundWallet(amount: Float!): PaymentResponse!
     verifyWalletFunding(reference: String!): TransactionResponse!
+    resolveWithdrawalAccount(accountNumber: String!, bankCode: String!): BankAccountResolutionResponse!
+    withdrawToBank(input: WithdrawToBankInput!): TransactionResponse!
     buyAirtime(input: BuyAirtimeInput!): TransactionResponse!
     buyData(input: BuyDataInput!): TransactionResponse!
     submitServiceRequest(input: ServiceRequestInput!): ServiceRequestResponse!
+    updateServiceRequestStatus(requestId: ID!, status: String!): ServiceRequestResponse!
     sendSupportMessage(input: SupportMessageInput!): SupportMessageResponse!
     adminReplySupportMessage(userId: ID!, input: AdminReplyInput!): SupportMessageResponse!
     updateSupportMessageStatus(messageId: ID!, status: String!): SupportMessageResponse!
@@ -275,6 +315,7 @@ type ServiceRequestRecord = {
     feePercentage?: number;
     expectedCredit?: number;
     createdAt: Date;
+    updatedAt?: Date;
 };
 
 type SupportMessageRecord = {
@@ -314,6 +355,44 @@ function normalizeStatus(status: string, allowed: string[]) {
 
 function normalizeSupportCategory(category?: string | null) {
     return category === 'Gift Card' ? 'Gift Card' : 'General';
+}
+
+function normalizePhoneNumber(phone: string) {
+    return phone.trim();
+}
+
+function normalizeAccountNumber(accountNumber: string) {
+    return accountNumber.replace(/\D/g, '').trim();
+}
+
+function generatePasswordResetOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function clearPasswordResetState(user: {
+    passwordResetOtpHash?: string;
+    passwordResetOtpExpiresAt?: Date | null;
+    passwordResetOtpRequestedAt?: Date | null;
+}) {
+    user.passwordResetOtpHash = '';
+    user.passwordResetOtpExpiresAt = null;
+    user.passwordResetOtpRequestedAt = null;
+}
+
+function mapWithdrawalProviderStatus(status = '') {
+    return status === 'success' ? 'Success' : status === 'failed' ? 'Failed' : 'Pending';
+}
+
+function buildWithdrawalMessage(providerStatus = '') {
+    if (providerStatus === 'success') {
+        return 'Withdrawal sent successfully to your bank account.';
+    }
+
+    if (providerStatus === 'otp') {
+        return 'Withdrawal created successfully and is awaiting Paystack transfer approval.';
+    }
+
+    return 'Withdrawal submitted successfully and is being processed.';
 }
 
 async function getAuthenticatedUser(req: NextRequest) {
@@ -408,6 +487,7 @@ function serializeServiceRequest(request: ServiceRequestRecord) {
         feePercentage: request.feePercentage ?? 0,
         expectedCredit: request.expectedCredit ?? 0,
         createdAt: request.createdAt.toISOString(),
+        updatedAt: request.updatedAt ? request.updatedAt.toISOString() : request.createdAt.toISOString(),
     };
 }
 
@@ -461,14 +541,21 @@ async function notifyAdminsAboutGiftCardChat({
     console.log('[GIFT CARD ALERT] User:', user.name, user.email, user.phone);
     console.log('[GIFT CARD ALERT] Message preview:', message.substring(0, 100));
 
-    const admins = await User.find({ role: 'admin' }).select('email');
-    const adminEmails = admins
-        .map((admin) => admin.email)
+    const configuredRecipients = getConfiguredAdminAlertRecipients();
+    const adminUsers = await User.find({ role: 'admin' }).select('email');
+    const adminRecipients = adminUsers
+        .map((admin: { email?: string }) => admin.email)
         .filter((email): email is string => Boolean(email));
-    const recipients = Array.from(new Set([...adminEmails, 'adewoleafolabi90@gmail.com']));
+    const recipients = Array.from(new Set([...configuredRecipients, ...adminRecipients]));
 
-    console.log('[GIFT CARD ALERT] Admin emails found:', adminEmails.length);
     console.log('[GIFT CARD ALERT] Recipients:', recipients);
+
+    if (recipients.length === 0) {
+        return {
+            sent: false,
+            reason: 'No admin alert recipients are configured',
+        };
+    }
 
     try {
         const result = await sendAdminGiftCardAlert({
@@ -481,8 +568,13 @@ async function notifyAdminsAboutGiftCardChat({
             message,
         });
         console.log('[GIFT CARD ALERT] Email sent result:', result);
+        return result;
     } catch (error) {
         console.error('[GIFT CARD ALERT] Failed to send email:', error);
+        return {
+            sent: false,
+            reason: error instanceof Error ? error.message : 'Unknown email error',
+        };
     }
 }
 
@@ -520,6 +612,20 @@ const resolvers = {
             await connectDB();
             const user = await getAuthenticatedUser(req);
             return user.walletBalance ?? 0;
+        },
+        withdrawalBanks: async (_parent: unknown, _args: unknown, { req }: GraphQLContext) => {
+            await connectDB();
+            await getAuthenticatedUser(req);
+
+            const banks = await listBanks();
+
+            return banks
+                .filter((bank: { active?: boolean; code?: string; name?: string }) => bank.active !== false && bank.code && bank.name)
+                .map((bank: { code: string; name: string }) => ({
+                    code: bank.code,
+                    name: bank.name,
+                }))
+                .sort((first: { name: string }, second: { name: string }) => first.name.localeCompare(second.name));
         },
         transactions: async (
             _parent: unknown,
@@ -818,12 +924,59 @@ const resolvers = {
         },
         forgotPassword: async (
             _parent: unknown,
-            { email, phone, newPassword }: { email: string; phone: string; newPassword: string }
+            { email, phone }: { email: string; phone: string }
         ) => {
             await connectDB();
 
-            if (!email || !phone || !newPassword) {
-                throw new Error('Email, phone number, and new password are required');
+            if (!email || !phone) {
+                throw new Error('Email and phone number are required');
+            }
+
+            const user = await User.findOne({ email: normalizeEmail(email) });
+            if (!user || normalizePhoneNumber(user.phone || '') !== normalizePhoneNumber(phone)) {
+                throw new Error('We could not verify your account with that email and phone number');
+            }
+
+            const requestedAt = user.passwordResetOtpRequestedAt ? new Date(user.passwordResetOtpRequestedAt) : null;
+            if (requestedAt && (Date.now() - requestedAt.getTime()) < 60 * 1000) {
+                throw new Error('Please wait a minute before requesting another OTP');
+            }
+
+            const otp = generatePasswordResetOtp();
+            user.passwordResetOtpHash = await bcrypt.hash(otp, 10);
+            user.passwordResetOtpExpiresAt = new Date(Date.now() + (10 * 60 * 1000));
+            user.passwordResetOtpRequestedAt = new Date();
+            await user.save();
+
+            const emailResult = await sendPasswordResetOtp({
+                recipient: user.email,
+                userName: user.name || 'there',
+                otp,
+            });
+
+            if (!emailResult.sent) {
+                clearPasswordResetState(user);
+                await user.save();
+                throw new Error(emailResult.reason || 'We could not send the password reset OTP');
+            }
+
+            return {
+                success: true,
+                message: 'A 6-digit OTP has been sent to your email address.',
+            };
+        },
+        resetPasswordWithOtp: async (
+            _parent: unknown,
+            { email, otp, newPassword }: { email: string; otp: string; newPassword: string }
+        ) => {
+            await connectDB();
+
+            if (!email || !otp || !newPassword) {
+                throw new Error('Email, OTP, and new password are required');
+            }
+
+            if (!/^\d{6}$/.test(otp.trim())) {
+                throw new Error('OTP must be a 6-digit code');
             }
 
             if (newPassword.length < 6) {
@@ -831,11 +984,23 @@ const resolvers = {
             }
 
             const user = await User.findOne({ email: normalizeEmail(email) });
-            if (!user || user.phone.trim() !== phone.trim()) {
-                throw new Error('We could not verify your account with that email and phone number');
+            if (!user || !user.passwordResetOtpHash || !user.passwordResetOtpExpiresAt) {
+                throw new Error('No active password reset request was found for this email');
+            }
+
+            if (new Date(user.passwordResetOtpExpiresAt).getTime() < Date.now()) {
+                clearPasswordResetState(user);
+                await user.save();
+                throw new Error('This OTP has expired. Request a new one.');
+            }
+
+            const isValidOtp = await bcrypt.compare(otp.trim(), user.passwordResetOtpHash);
+            if (!isValidOtp) {
+                throw new Error('Invalid OTP');
             }
 
             user.password = await bcrypt.hash(newPassword, 12);
+            clearPasswordResetState(user);
             await user.save();
 
             return {
@@ -978,6 +1143,181 @@ const resolvers = {
                 transaction: transaction ? serializeTransaction(transaction) : null,
             };
         },
+        resolveWithdrawalAccount: async (
+            _parent: unknown,
+            { accountNumber, bankCode }: { accountNumber: string; bankCode: string },
+            { req }: GraphQLContext
+        ) => {
+            await connectDB();
+            await getAuthenticatedUser(req);
+
+            const normalizedAccountNumber = normalizeAccountNumber(accountNumber);
+            const normalizedBankCode = bankCode.trim();
+
+            if (!normalizedBankCode) {
+                throw new Error('Bank code is required');
+            }
+
+            if (normalizedAccountNumber.length !== 10) {
+                throw new Error('Account number must be 10 digits');
+            }
+
+            try {
+                const resolution = await resolveAccountNumber(normalizedAccountNumber, normalizedBankCode);
+
+                const accountName = String(
+                    resolution?.account_name ??
+                    resolution?.accountName ??
+                    resolution?.account_name?.trim?.() ??
+                    ''
+                ).trim();
+
+                return {
+                    success: true,
+                    message: 'Account verified successfully',
+                    accountName,
+                };
+            } catch (error) {
+                throw new Error(getPaystackErrorMessage(error, 'We could not verify this bank account'));
+            }
+        },
+        withdrawToBank: async (
+            _parent: unknown,
+            {
+                input,
+            }: {
+                input: {
+                    bankCode: string;
+                    bankName: string;
+                    accountNumber: string;
+                    accountName: string;
+                    amount: number;
+                    reason?: string;
+                };
+            },
+            { req }: GraphQLContext
+        ) => {
+            await connectDB();
+            const user = await getAuthenticatedUser(req);
+
+            const bankCode = input.bankCode.trim();
+            const bankName = input.bankName.trim();
+            const accountNumber = normalizeAccountNumber(input.accountNumber);
+            const amount = Number(input.amount);
+            const reason = input.reason?.trim() || 'Wallet withdrawal';
+
+            if (!bankCode || !bankName) {
+                throw new Error('Bank details are required');
+            }
+
+            if (accountNumber.length !== 10) {
+                throw new Error('Account number must be 10 digits');
+            }
+
+            if (!amount || amount <= 0) {
+                throw new Error('Withdrawal amount must be greater than zero');
+            }
+
+            if ((user.walletBalance ?? 0) < amount) {
+                throw new Error('Insufficient wallet balance');
+            }
+
+            try {
+                const resolution = await resolveAccountNumber(accountNumber, bankCode);
+                const resolvedAccountName = String(resolution.account_name || input.accountName || '').trim();
+
+                if (!resolvedAccountName) {
+                    throw new Error('We could not verify this bank account');
+                }
+
+                const recipient = await createTransferRecipient({
+                    name: resolvedAccountName,
+                    accountNumber,
+                    bankCode,
+                });
+
+                const reference = generateTransferReference();
+                let walletDebited = false;
+                let transaction: TransactionRecord | null = null;
+                let withdrawalRecord: { _id: ObjectIdLike } | null = null;
+
+                try {
+                    await deductWallet(user._id, amount);
+                    walletDebited = true;
+
+                    transaction = await createTransaction(user._id, 'Withdrawal', amount, 'debit', reference);
+
+                    const createdWithdrawalRecord = await Withdrawal.create({
+                        userId: user._id,
+                        amount,
+                        bankCode,
+                        bankName,
+                        accountNumber,
+                        accountName: resolvedAccountName,
+                        reason,
+                        reference,
+                        recipientCode: recipient.recipient_code || '',
+                    });
+                    withdrawalRecord = createdWithdrawalRecord;
+                    const withdrawalRecordId = createdWithdrawalRecord._id;
+
+                    const transfer = await initiateTransfer({
+                        recipient: recipient.recipient_code,
+                        amount,
+                        reference,
+                        reason,
+                    });
+
+                    const providerStatus = String(transfer.status || '').toLowerCase();
+                    const mappedStatus = mapWithdrawalProviderStatus(providerStatus);
+                    const failureReason = mappedStatus === 'Failed'
+                        ? String(transfer.complete_message || transfer.message || 'Withdrawal failed')
+                        : '';
+
+                    await Withdrawal.findByIdAndUpdate(withdrawalRecordId, {
+                        transferCode: transfer.transfer_code || transfer.code || '',
+                        providerStatus,
+                        status: mappedStatus,
+                        failureReason,
+                    });
+
+                    transaction = await updateTransactionStatus(reference, mappedStatus);
+
+                    if (mappedStatus === 'Failed' && walletDebited) {
+                        await refundWallet(user._id, amount);
+                        walletDebited = false;
+                    }
+
+                    return {
+                        success: mappedStatus !== 'Failed',
+                        message: mappedStatus === 'Failed'
+                            ? failureReason || 'Withdrawal failed'
+                            : buildWithdrawalMessage(providerStatus),
+                        transaction: transaction ? serializeTransaction(transaction) : null,
+                    };
+                } catch (error) {
+                    if (walletDebited) {
+                        await refundWallet(user._id, amount);
+                    }
+
+                    if (withdrawalRecord) {
+                        await Withdrawal.findByIdAndUpdate(withdrawalRecord._id, {
+                            status: 'Failed',
+                            providerStatus: 'failed',
+                            failureReason: getPaystackErrorMessage(error, 'Withdrawal failed'),
+                        });
+                    }
+
+                    if (transaction) {
+                        transaction = await updateTransactionStatus(reference, 'Failed');
+                    }
+
+                    throw error;
+                }
+            } catch (error) {
+                throw new Error(getPaystackErrorMessage(error, 'We could not complete the withdrawal'));
+            }
+        },
 
         buyAirtime: async (
             _parent: unknown,
@@ -1103,6 +1443,31 @@ const resolvers = {
                 request: serializeServiceRequest(request),
             };
         },
+        updateServiceRequestStatus: async (
+            _parent: unknown,
+            { requestId, status }: { requestId: string; status: string },
+            { req }: GraphQLContext
+        ) => {
+            await connectDB();
+            await getAuthenticatedAdmin(req);
+
+            const normalizedStatus = normalizeStatus(status, ['Pending', 'In Review', 'Completed', 'Declined']);
+            const request = await ServiceRequest.findByIdAndUpdate(
+                requestId,
+                { status: normalizedStatus },
+                { new: true }
+            );
+
+            if (!request) {
+                throw new Error('Service request not found');
+            }
+
+            return {
+                success: true,
+                message: 'Service request updated successfully',
+                request: serializeServiceRequest(request),
+            };
+        },
         sendSupportMessage: async (
             _parent: unknown,
             {
@@ -1148,19 +1513,21 @@ const resolvers = {
                 contactHandle,
             });
 
-            if (category === 'Gift Card') {
-                await notifyAdminsAboutGiftCardChat({
+            const giftCardAlertResult = category === 'Gift Card'
+                ? await notifyAdminsAboutGiftCardChat({
                     user,
                     preferredChannel: input.preferredChannel,
                     contactHandle,
                     message: input.message.trim(),
-                });
-            }
+                })
+                : null;
 
             return {
                 success: true,
                 message: category === 'Gift Card'
-                    ? 'Your gift card chat has been sent. Hold on until the admin is online.'
+                    ? giftCardAlertResult?.sent
+                        ? 'Your gift card chat has been sent. Hold on until the admin is online.'
+                        : 'Your gift card chat has been sent and the admin dashboard was alerted, but the email alert could not be delivered yet.'
                     : 'Your message has been sent to support. An admin can now follow up from the dashboard.',
                 supportMessage: serializeSupportMessage(supportMessage, user),
             };
