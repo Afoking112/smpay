@@ -4,6 +4,7 @@ import {
     FiZap,
     FiDollarSign,
     FiCreditCard,
+    FiBriefcase,
     FiTv,
 } from "react-icons/fi";
 
@@ -14,6 +15,7 @@ const serviceCards = [
     { id: 'airtime-cash', title: 'Airtime to Cash', icon: FiDollarSign, enabled: true },
     { id: 'electricity', title: 'Electricity Bills', icon: FiCreditCard, enabled: true },
     { id: 'cable-tv', title: 'Cable TV', icon: FiTv, enabled: true },
+    { id: 'loan', title: 'Loan', icon: FiBriefcase, enabled: true },
 ];
 
 export default function QuickServices({ selectedService, onSelectService }) {

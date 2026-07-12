@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiActivity, FiGift, FiHome, FiMessageSquare, FiUser, FiZap } from "react-icons/fi";
+import { FiGift, FiHome, FiMessageSquare, FiUser, FiZap } from "react-icons/fi";
 
 const desktopLinks = [
     { href: '/dashboard', match: '/dashboard', icon: FiHome, label: 'Dashboard Home' },
@@ -10,14 +10,12 @@ const desktopLinks = [
     { href: '/messages', match: '/messages', icon: FiMessageSquare, label: 'Support' },
     { href: '/dashboard#service-center', match: '/dashboard', icon: FiZap, label: 'Service Center' },
     { href: '/dashboard#service-requests', match: '/dashboard', icon: FiGift, label: 'Service Requests' },
-    { href: '/status', match: '/status', icon: FiActivity, label: 'System Status' },
 ];
 
 const mobileLinks = [
     { href: '/dashboard', match: '/dashboard', icon: FiHome, label: 'Home' },
     { href: '/profile', match: '/profile', icon: FiUser, label: 'Profile' },
     { href: '/messages', match: '/messages', icon: FiMessageSquare, label: 'Support' },
-    { href: '/status', match: '/status', icon: FiActivity, label: 'Status' },
 ];
 
 export default function Sidebar() {

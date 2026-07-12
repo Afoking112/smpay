@@ -41,6 +41,10 @@ const serviceContent = {
         title: 'Cable TV Subscription Request',
         description: 'Create a renewal request and track its processing status from your dashboard.',
     },
+    loan: {
+        title: 'Loan Request',
+        description: 'Submit a loan application and keep it in pending review until the admin responds.',
+    },
 };
 
 export default function ServicePurchasePanel({ service, onClose }) {
@@ -179,6 +183,18 @@ export default function ServicePurchasePanel({ service, onClose }) {
             };
         }
 
+        if (service === 'loan') {
+            return {
+                category: 'Loan',
+                title: 'Loan request',
+                provider: requestForm.provider,
+                accountOrPhone: requestForm.accountOrPhone,
+                amount: Number(requestForm.amount || 0),
+                direction: 'borrow',
+                note: requestForm.note,
+            };
+        }
+
         if (service === 'electricity') {
             return {
                 category: 'Electricity',
@@ -238,12 +254,16 @@ export default function ServicePurchasePanel({ service, onClose }) {
                 ? 'Network'
                 : service === 'electricity'
                     ? 'Disco Provider'
+                    : service === 'loan'
+                        ? 'Lender'
                     : 'Cable Provider',
         accountOrPhone:
             service === 'airtime-cash'
                 ? 'Phone Number'
                 : service === 'electricity'
                     ? 'Meter Number'
+                    : service === 'loan'
+                        ? 'Account Number'
                     : 'Smartcard Number',
     };
 
@@ -445,6 +465,13 @@ export default function ServicePurchasePanel({ service, onClose }) {
                                 We charge 7% on airtime conversions. If you submit {formatCurrency(airtimeCashAmount)}, the amount to be credited is {formatCurrency(airtimeCashCredit)}.
                             </p>
                             <p className="mt-1 text-[#ffb347]">Charge: {formatCurrency(airtimeCashFee)}</p>
+                        </div>
+                    ) : service === 'loan' ? (
+                        <div className="rounded-[1.25rem] border border-[#7df2c8]/20 bg-[#7df2c8]/8 px-4 py-3 text-sm text-[#cdeedd] md:col-span-2">
+                            <p className="font-semibold text-[#7df2c8]">Loan requests stay pending</p>
+                            <p className="mt-2">
+                                This creates a manual-review loan request, so the status will remain Pending until the team approves or declines it.
+                            </p>
                         </div>
                     ) : (
                         <div className="rounded-[1.25rem] border border-dashed border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-[#b7c6d7]">

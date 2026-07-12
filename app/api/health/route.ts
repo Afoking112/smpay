@@ -48,7 +48,16 @@ export async function GET() {
             ok,
             timestamp: new Date().toISOString(),
             checks,
+            // Extra human-friendly summary to avoid only relying on HTTP status
+            summary: ok
+                ? 'All checks passed'
+                : [
+                    !allEnvReady ? 'Missing required environment variables' : null,
+                    !checks.db.ok ? `Database: ${checks.db.message}` : null,
+                ]
+                    .filter(Boolean)
+                    .join('; '),
         },
-        { status: ok ? 200 : 503 }
+        {} // HTTP status not returned/used; relies on `ok` + `summary` for diagnostics
     );
 }

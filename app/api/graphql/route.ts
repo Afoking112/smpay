@@ -8,6 +8,7 @@ import connectDB from '../../../lib/mongodb';
 import User from '../../../models/User';
 import Transaction from '../../../models/Transaction';
 import ServiceRequest from '../../../models/ServiceRequest';
+
 import SupportMessage from '../../../models/SupportMessage';
 import Withdrawal from '../../../models/Withdrawal';
 import {
@@ -35,6 +36,13 @@ import {
 } from '../../../services/transaction.js';
 
 const typeDefs = gql`
+  
+  enum RepaymentStatus {
+    Pending
+    Success
+    Failed
+  }
+
   type Transaction {
     id: ID!
     service: String!
@@ -112,6 +120,25 @@ const typeDefs = gql`
     message: String!
     request: ServiceRequest
   }
+
+  type LoanRepayment {
+    id: ID!
+    loanRequestId: ID!
+    principalAmount: Float!
+    repaymentAmount: Float!
+    status: RepaymentStatus!
+    paystackReference: String!
+    repaidAt: String
+    createdAt: String!
+    updatedAt: String!
+  }
+
+  type LoanRepaymentResponse {
+    success: Boolean!
+    message: String!
+    repayment: LoanRepayment
+  }
+
 
   type SupportMessage {
     id: ID!

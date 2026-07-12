@@ -8,7 +8,7 @@ const serviceRequestSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['Gift Card', 'Airtime to Cash', 'Electricity', 'Cable TV'],
+        enum: ['Gift Card', 'Airtime to Cash', 'Electricity', 'Cable TV', 'Loan'],
         required: true,
     },
     title: {
