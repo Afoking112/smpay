@@ -139,3 +139,12 @@ This workspace now uses a non-SRV Atlas connection string locally to avoid the S
 - Add dashboard charts and richer transaction filtering
 - Add tests for auth, funding, and service purchases
 - Add route protection middleware if you want stronger edge-level guards
+
+## Production Readiness Checklist
+
+- Add email verification and password reset flow with expiry and retry limits
+- Add rate limiting and stricter validation on auth and finance mutations
+- Add transaction audit logs for funding, withdrawals, airtime, and data purchases
+- Add admin moderation tools for users, support tickets, and withdrawals
+- Add automated CI checks for linting and tests before deployment
+- Add monitoring and error logging for payment and webhook failures

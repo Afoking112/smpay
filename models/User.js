@@ -61,6 +61,14 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    isBlocked: {
+        type: Boolean,
+        default: false,
+    },
+    lastLoginAt: {
+        type: Date,
+        default: null,
+    },
 }, { timestamps: true });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);

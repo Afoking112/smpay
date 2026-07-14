@@ -34,6 +34,10 @@ import {
     refundWallet,
     updateTransactionStatus,
 } from '../../../services/transaction.js';
+import { validateAmount, validatePasswordResetInput, validatePasswordResetOtpInput, validateSignupInput } from '../../../utils/validation.js';
+import { createRateLimiter } from '../../../utils/rateLimit.js';
+
+const authRateLimiter = createRateLimiter(10, 60 * 1000);
 
 const typeDefs = gql`
   
@@ -273,6 +277,8 @@ const typeDefs = gql`
     sendSupportMessage(input: SupportMessageInput!): SupportMessageResponse!
     adminReplySupportMessage(userId: ID!, input: AdminReplyInput!): SupportMessageResponse!
     updateSupportMessageStatus(messageId: ID!, status: String!): SupportMessageResponse!
+    setUserRole(userId: ID!, role: String!): UserResponse!
+    setUserBlockStatus(userId: ID!, isBlocked: Boolean!): UserResponse!
     deleteUser(userId: ID!): BasicResponse!
   }
 
@@ -378,6 +384,10 @@ function normalizeStatus(status: string, allowed: string[]) {
     }
 
     return status;
+}
+
+function normalizeAdminRole(role: string) {
+    return role === 'admin' ? 'admin' : 'user';
 }
 
 function normalizeSupportCategory(category?: string | null) {
@@ -796,18 +806,18 @@ const resolvers = {
     Mutation: {
         signup: async (_parent: unknown, { input }: { input: { name: string; phone: string; email: string; password: string } }) => {
             await connectDB();
-            const name = input.name.trim();
-            const phone = input.phone.trim();
-            const email = normalizeEmail(input.email);
-            const password = input.password;
-
-            if (!name || !phone || !email || !password) {
-                throw new Error('All fields are required');
+            const rateLimitKey = `signup:${input.email || 'unknown'}`;
+            if (!authRateLimiter(rateLimitKey)) {
+                throw new Error('Too many signup attempts. Please try again in a minute.');
             }
 
-            if (password.length < 6) {
-                throw new Error('Password must be at least 6 characters');
+            const validation = validateSignupInput(input);
+
+            if (!validation.ok || !validation.normalized) {
+                throw new Error(validation.error || 'Invalid signup input');
             }
+
+            const { name, phone, email, password } = validation.normalized;
 
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -838,6 +848,10 @@ const resolvers = {
 
         login: async (_parent: unknown, { email, password }: { email: string; password: string }) => {
             await connectDB();
+            const rateLimitKey = `login:${email || 'unknown'}`;
+            if (!authRateLimiter(rateLimitKey)) {
+                throw new Error('Too many login attempts. Please try again in a minute.');
+            }
 
             const normalizedEmail = normalizeEmail(email);
             if (!normalizedEmail || !password) {
@@ -873,18 +887,13 @@ const resolvers = {
             { input }: { input: { name: string; phone: string; email: string; password: string } }
         ) => {
             await connectDB();
-            const name = input.name.trim();
-            const phone = input.phone.trim();
-            const email = normalizeEmail(input.email);
-            const password = input.password;
+            const validation = validateSignupInput(input);
 
-            if (!name || !phone || !email || !password) {
-                throw new Error('All fields are required');
+            if (!validation.ok || !validation.normalized) {
+                throw new Error(validation.error || 'Invalid admin signup input');
             }
 
-            if (password.length < 6) {
-                throw new Error('Password must be at least 6 characters');
-            }
+            const { name, phone, email, password } = validation.normalized;
 
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -954,13 +963,18 @@ const resolvers = {
             { email, phone }: { email: string; phone: string }
         ) => {
             await connectDB();
-
-            if (!email || !phone) {
-                throw new Error('Email and phone number are required');
+            const rateLimitKey = `forgot-password:${email || 'unknown'}`;
+            if (!authRateLimiter(rateLimitKey)) {
+                throw new Error('Too many password reset attempts. Please try again in a minute.');
             }
 
-            const user = await User.findOne({ email: normalizeEmail(email) });
-            if (!user || normalizePhoneNumber(user.phone || '') !== normalizePhoneNumber(phone)) {
+            const validation = validatePasswordResetInput({ email, phone });
+            if (!validation.ok || !validation.normalized) {
+                throw new Error(validation.error || 'Invalid password reset input');
+            }
+
+            const user = await User.findOne({ email: validation.normalized.email });
+            if (!user || normalizePhoneNumber(user.phone || '') !== normalizePhoneNumber(validation.normalized.phone)) {
                 throw new Error('We could not verify your account with that email and phone number');
             }
 
@@ -997,20 +1011,17 @@ const resolvers = {
             { email, otp, newPassword }: { email: string; otp: string; newPassword: string }
         ) => {
             await connectDB();
-
-            if (!email || !otp || !newPassword) {
-                throw new Error('Email, OTP, and new password are required');
+            const rateLimitKey = `reset-password:${email || 'unknown'}`;
+            if (!authRateLimiter(rateLimitKey)) {
+                throw new Error('Too many password reset attempts. Please try again in a minute.');
             }
 
-            if (!/^\d{6}$/.test(otp.trim())) {
-                throw new Error('OTP must be a 6-digit code');
+            const validation = validatePasswordResetOtpInput({ email, otp, newPassword });
+            if (!validation.ok || !validation.normalized) {
+                throw new Error(validation.error || 'Invalid password reset input');
             }
 
-            if (newPassword.length < 6) {
-                throw new Error('Password must be at least 6 characters');
-            }
-
-            const user = await User.findOne({ email: normalizeEmail(email) });
+            const user = await User.findOne({ email: validation.normalized.email });
             if (!user || !user.passwordResetOtpHash || !user.passwordResetOtpExpiresAt) {
                 throw new Error('No active password reset request was found for this email');
             }
@@ -1021,12 +1032,12 @@ const resolvers = {
                 throw new Error('This OTP has expired. Request a new one.');
             }
 
-            const isValidOtp = await bcrypt.compare(otp.trim(), user.passwordResetOtpHash);
+            const isValidOtp = await bcrypt.compare(validation.normalized.otp, user.passwordResetOtpHash);
             if (!isValidOtp) {
                 throw new Error('Invalid OTP');
             }
 
-            user.password = await bcrypt.hash(newPassword, 12);
+            user.password = await bcrypt.hash(validation.normalized.newPassword, 12);
             clearPasswordResetState(user);
             await user.save();
 
@@ -1103,17 +1114,18 @@ const resolvers = {
         fundWallet: async (_parent: unknown, { amount }: { amount: number }, { req }: GraphQLContext) => {
             await connectDB();
             const user = await getAuthenticatedUser(req);
+            const amountValidation = validateAmount(amount, 'Funding amount');
 
-            if (!amount || amount <= 0) {
-                throw new Error('Amount must be greater than zero');
+            if (!amountValidation.ok) {
+                throw new Error(amountValidation.error);
             }
 
-            const payment = await initializePayment(user.email, amount, user._id.toString());
+            const payment = await initializePayment(user.email, amountValidation.amount, user._id.toString());
 
             await createTransaction(
                 user._id,
                 'Wallet Funding',
-                amount,
+                amountValidation.amount,
                 'credit',
                 payment.reference
             );
@@ -1230,7 +1242,7 @@ const resolvers = {
             const bankCode = input.bankCode.trim();
             const bankName = input.bankName.trim();
             const accountNumber = normalizeAccountNumber(input.accountNumber);
-            const amount = Number(input.amount);
+            const amountValidation = validateAmount(input.amount, 'Withdrawal amount');
             const reason = input.reason?.trim() || 'Wallet withdrawal';
 
             if (!bankCode || !bankName) {
@@ -1241,9 +1253,11 @@ const resolvers = {
                 throw new Error('Account number must be 10 digits');
             }
 
-            if (!amount || amount <= 0) {
-                throw new Error('Withdrawal amount must be greater than zero');
+            if (!amountValidation.ok || typeof amountValidation.amount !== 'number') {
+                throw new Error(amountValidation.error || 'Invalid withdrawal amount');
             }
+
+            const amount = amountValidation.amount;
 
             if ((user.walletBalance ?? 0) < amount) {
                 throw new Error('Insufficient wallet balance');
@@ -1354,20 +1368,23 @@ const resolvers = {
             await connectDB();
             const user = await getAuthenticatedUser(req);
 
-            if (!input.amount || input.amount <= 0) {
-                throw new Error('Amount must be greater than zero');
+            const amountValidation = validateAmount(input.amount, 'Airtime amount');
+
+            if (!amountValidation.ok || typeof amountValidation.amount !== 'number') {
+                throw new Error(amountValidation.error || 'Invalid airtime amount');
             }
 
             const reference = `AIRTIME_${Date.now()}`;
-            await deductWallet(user._id, input.amount);
-            await createTransaction(user._id, 'Airtime', input.amount, 'debit', reference);
+            const amount = amountValidation.amount;
+            await deductWallet(user._id, amount);
+            await createTransaction(user._id, 'Airtime', amount, 'debit', reference);
 
-            const result = await purchaseAirtime(input.phone, input.network, input.amount);
+            const result = await purchaseAirtime(input.phone, input.network, amount);
 
             if (result.success) {
                 await updateTransactionStatus(reference, 'Success');
             } else {
-                await refundWallet(user._id, input.amount);
+                await refundWallet(user._id, amount);
                 await updateTransactionStatus(reference, 'Failed');
             }
 
@@ -1387,11 +1404,13 @@ const resolvers = {
         ) => {
             await connectDB();
             const user = await getAuthenticatedUser(req);
-            const amount = Number(input.amount);
+            const amountValidation = validateAmount(input.amount, 'Data amount');
 
-            if (!amount || amount <= 0) {
-                throw new Error('Invalid plan amount');
+            if (!amountValidation.ok || typeof amountValidation.amount !== 'number') {
+                throw new Error(amountValidation.error || 'Invalid data amount');
             }
+
+            const amount = amountValidation.amount;
 
             if (!input.planId) {
                 throw new Error('Data plan ID is required');
@@ -1437,15 +1456,17 @@ const resolvers = {
         ) => {
             await connectDB();
             const user = await getAuthenticatedUser(req);
-            const amount = Number(input.amount || 0);
+            const amountValidation = validateAmount(input.amount, 'Service amount');
 
             if (!input.category || !input.title) {
                 throw new Error('Category and title are required');
             }
 
-            if (amount <= 0) {
-                throw new Error('Amount must be greater than zero');
+            if (!amountValidation.ok || typeof amountValidation.amount !== 'number') {
+                throw new Error(amountValidation.error || 'Invalid service amount');
             }
+
+            const amount = amountValidation.amount;
 
             const { feePercentage, expectedCredit } = buildAirtimeToCashValues(input.category, amount);
 
@@ -1630,6 +1651,53 @@ const resolvers = {
                 success: true,
                 message: 'Support message updated successfully',
                 supportMessage: serializeSupportMessage(supportMessage, supportMessage.userId),
+            };
+        },
+        setUserRole: async (
+            _parent: unknown,
+            { userId, role }: { userId: string; role: string },
+            { req }: GraphQLContext
+        ) => {
+            await connectDB();
+            await getAuthenticatedAdmin(req);
+
+            const normalizedRole = normalizeAdminRole(role);
+            const targetUser = await User.findById(userId);
+
+            if (!targetUser) {
+                throw new Error('User not found');
+            }
+
+            targetUser.role = normalizedRole;
+            await targetUser.save();
+
+            return {
+                success: true,
+                message: `User role updated to ${normalizedRole}`,
+                user: serializeUser(targetUser),
+            };
+        },
+        setUserBlockStatus: async (
+            _parent: unknown,
+            { userId, isBlocked }: { userId: string; isBlocked: boolean },
+            { req }: GraphQLContext
+        ) => {
+            await connectDB();
+            await getAuthenticatedAdmin(req);
+
+            const targetUser = await User.findById(userId);
+
+            if (!targetUser) {
+                throw new Error('User not found');
+            }
+
+            targetUser.isBlocked = isBlocked;
+            await targetUser.save();
+
+            return {
+                success: true,
+                message: isBlocked ? 'User blocked successfully' : 'User unblocked successfully',
+                user: serializeUser(targetUser),
             };
         },
         deleteUser: async (
