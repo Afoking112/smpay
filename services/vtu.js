@@ -4,18 +4,22 @@ import generateReference from '../utils/reference.js';
 const VT_PASS_URL = 'https://sandbox.vtpass.com/api';
 
 export function getVtpassAuthValue(env = process.env) {
-    if (env.VTPASS_API_KEY) {
-        return env.VTPASS_API_KEY;
+    if (env.VTPASS_USERNAME && env.VTPASS_PASSWORD) {
+        return `${env.VTPASS_USERNAME}:${env.VTPASS_PASSWORD}`;
     }
 
     if (env.VTPASS_PUBLIC_KEY && env.VTPASS_SECRET_KEY) {
         return `${env.VTPASS_PUBLIC_KEY}:${env.VTPASS_SECRET_KEY}`;
     }
 
+    if (env.VTPASS_API_KEY) {
+        return env.VTPASS_API_KEY;
+    }
+
     return '';
 }
 
-function normalizeProviderError(error) {
+export function normalizeProviderError(error) {
     if (!error) {
         return 'VTpass request failed';
     }
@@ -25,16 +29,31 @@ function normalizeProviderError(error) {
     }
 
     if (typeof error === 'object') {
-        if (typeof error.message === 'string' && error.message.trim()) {
-            return error.message;
-        }
+        const statusCode = error.response?.status;
 
         if (typeof error.response?.data === 'string') {
-            return error.response.data;
+            return statusCode
+                ? `VTpass rejected the request (${statusCode}): ${error.response.data}`
+                : error.response.data;
         }
 
         if (error.response?.data && typeof error.response.data === 'object') {
+            const providerMessage = error.response.data.response_description
+                || error.response.data.message
+                || error.response.data.error
+                || error.response.data.detail;
+
+            if (typeof providerMessage === 'string' && providerMessage.trim()) {
+                return statusCode
+                    ? `VTpass rejected the request (${statusCode}): ${providerMessage}`
+                    : providerMessage;
+            }
+
             return JSON.stringify(error.response.data);
+        }
+
+        if (typeof error.message === 'string' && error.message.trim()) {
+            return error.message;
         }
     }
 
@@ -48,7 +67,7 @@ export const buyAirtime = async (phone, network, amount) => {
     if (!vtpassAuth) {
         return {
             success: false,
-            error: 'VTpass credentials are not configured. Please set VTPASS_API_KEY or VTPASS_PUBLIC_KEY and VTPASS_SECRET_KEY.',
+            error: 'VTpass credentials are not configured. Please set VTPASS_API_KEY, VTPASS_PUBLIC_KEY and VTPASS_SECRET_KEY, or VTPASS_USERNAME and VTPASS_PASSWORD.',
             reference,
         };
     }
@@ -91,7 +110,7 @@ export const buyData = async (phone, network, planId) => {
     if (!vtpassAuth) {
         return {
             success: false,
-            error: 'VTpass credentials are not configured. Please set VTPASS_API_KEY or VTPASS_PUBLIC_KEY and VTPASS_SECRET_KEY.',
+            error: 'VTpass credentials are not configured. Please set VTPASS_API_KEY, VTPASS_PUBLIC_KEY and VTPASS_SECRET_KEY, or VTPASS_USERNAME and VTPASS_PASSWORD.',
             reference,
         };
     }

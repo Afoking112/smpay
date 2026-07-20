@@ -256,7 +256,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                     ? 'Disco Provider'
                     : service === 'loan'
                         ? 'Lender'
-                    : 'Cable Provider',
+                        : 'Cable Provider',
         accountOrPhone:
             service === 'airtime-cash'
                 ? 'Phone Number'
@@ -264,7 +264,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                     ? 'Meter Number'
                     : service === 'loan'
                         ? 'Account Number'
-                    : 'Smartcard Number',
+                        : 'Smartcard Number',
     };
 
     return (
@@ -285,11 +285,10 @@ export default function ServicePurchasePanel({ service, onClose }) {
 
             {feedback ? (
                 <div
-                    className={`mt-4 rounded-lg px-4 py-3 text-sm ${
-                        feedback.kind === 'success'
+                    className={`mt-4 rounded-lg px-4 py-3 text-sm ${feedback.kind === 'success'
                             ? 'border border-green-200 bg-green-50 text-green-700'
                             : 'border border-red-200 bg-red-50 text-red-600'
-                    }`}
+                        }`}
                 >
                     <p>{feedback.message}</p>
                     {feedback.reference ? <p className="mt-1">Reference: {feedback.reference}</p> : null}
@@ -404,7 +403,7 @@ export default function ServicePurchasePanel({ service, onClose }) {
                         </select>
                     </label>
                     <div className="md:col-span-2 rounded-[1.25rem] border border-[#ffb347]/30 bg-[#ffb347]/10 px-4 py-3 text-sm text-[#ffd493]">
-                        This starter catalog removes manual plan ID entry. Replace the default plan identifiers in the code with your exact VTpass production IDs before going live.
+                        Using the starter catalog below. If VTpass rejects the request, the provider credentials or the selected plan ID needs to be updated in the VTpass dashboard.
                     </div>
                     <div className="app-subcard md:col-span-2 flex items-center justify-between gap-4 rounded-[1.25rem] px-4 py-4">
                         <p className="text-sm text-[#b7c6d7]">
