@@ -215,8 +215,8 @@ export default function WithdrawModal({ isOpen, onClose }) {
                                 required
                             >
                                 <option value="">{banksLoading ? 'Loading banks...' : 'Select a bank'}</option>
-                                {banks.map((bank) => (
-                                    <option key={bank.code} value={bank.code}>
+                                {banks.map((bank, index) => (
+                                    <option key={`${bank.code || 'bank'}-${bank.name || 'name'}-${index}`} value={bank.code}>
                                         {bank.name}
                                     </option>
                                 ))}
@@ -262,11 +262,10 @@ export default function WithdrawModal({ isOpen, onClose }) {
 
                     {resolutionStatus ? (
                         <div
-                            className={`rounded-lg px-4 py-3 text-sm ${
-                                resolutionStatus.kind === 'success'
+                            className={`rounded-lg px-4 py-3 text-sm ${resolutionStatus.kind === 'success'
                                     ? 'border border-green-200 bg-green-50 text-green-700'
                                     : 'border border-red-200 bg-red-50 text-red-700'
-                            }`}
+                                }`}
                         >
                             {resolutionStatus.message}
                         </div>
@@ -313,11 +312,10 @@ export default function WithdrawModal({ isOpen, onClose }) {
 
                     {feedback ? (
                         <div
-                            className={`rounded-lg px-4 py-3 text-sm ${
-                                feedback.kind === 'success'
+                            className={`rounded-lg px-4 py-3 text-sm ${feedback.kind === 'success'
                                     ? 'border border-green-200 bg-green-50 text-green-700'
                                     : 'border border-red-200 bg-red-50 text-red-700'
-                            }`}
+                                }`}
                         >
                             <p>{feedback.message}</p>
                             {feedback.reference ? (

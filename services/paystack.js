@@ -11,8 +11,32 @@ function getHeaders() {
     };
 }
 
+function normalizePaystackErrorMessage(error, fallbackMessage = 'Paystack request failed') {
+    const rawMessage = error?.response?.data?.message
+        || error?.response?.data?.error
+        || error?.message
+        || '';
+
+    const message = String(rawMessage || '').trim();
+    const lower = message.toLowerCase();
+
+    if (!message) {
+        return fallbackMessage;
+    }
+
+    if ((lower.includes('starter business') || lower.includes('third party payouts') || lower.includes('third-party payouts')) && (lower.includes('cannot') || lower.includes('not') || lower.includes('permission') || lower.includes('payout'))) {
+        return 'Your Paystack account is not currently approved for third-party payouts. Please complete the required business verification and payout setup in Paystack, or contact Paystack support to enable transfers.';
+    }
+
+    if (lower.includes('request payout') || lower.includes('payout permission') || lower.includes('permission') || lower.includes('role') || lower.includes('admin')) {
+        return 'Your Paystack account does not currently have the required payout permissions. Please contact the Paystack business administrator or support to enable transfer access.';
+    }
+
+    return message;
+}
+
 export function getPaystackErrorMessage(error, fallbackMessage = 'Paystack request failed') {
-    return error?.response?.data?.message || error?.message || fallbackMessage;
+    return normalizePaystackErrorMessage(error, fallbackMessage);
 }
 
 export function generateTransferReference() {

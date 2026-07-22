@@ -22,7 +22,10 @@
 3. Copy the Node.js connection string
 4. Replace `<password>` with your actual Atlas password
 
-## 5. Update `.env.local`
+## 5. Update your environment variables
+
+For local development, add the value to `.env.local`.
+For deployment (Vercel, Render, Railway, etc.), add it in the platform's environment settings as `MONGODB_URI`.
 
 Use either of these formats:
 
